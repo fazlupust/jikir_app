@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ذكر — Dhikr Counter</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   THEME VARIABLES
+══════════════════════════════════════════ */
+:root {
+  --bg:#08090d; --surf:#0f1117; --card:#13161f; --card2:#181c27;
+  --bdr:#1e2333; --bdr2:#252b3b;
+  --gold:#d4a843; --gold-l:#f0c96a; --gold-d:#7a5e20;
+  --txt:#ddd5c0; --txt2:#8892a4; --txt3:#3d4558;
+  --accent:#d4a843;
+  --shadow:0 12px 40px rgba(0,0,0,.6);
+  --r:16px; --rb:12px;
+  --ff:'DM Sans',sans-serif;
+  --ffa:'Amiri',serif;
+  --ffc:'Cinzel',serif;
+}
+[data-theme="light"] {
+  --bg:#f5f0e8; --surf:#ede8dc; --card:#fff9ef; --card2:#f5eedb;
+  --bdr:#d6cdb8; --bdr2:#c8bfa8;
+  --txt:#2a2318; --txt2:#6b5e48; --txt3:#a89880;
+  --shadow:0 8px 32px rgba(0,0,0,.12);
+}
+[data-theme="ocean"] {
+  --bg:#040d18; --surf:#071525; --card:#0a1e30; --card2:#0d2540;
+  --bdr:#0e2d45; --bdr2:#143858;
+  --gold:#38bdf8; --gold-l:#7dd3fc; --gold-d:#0c4a6e;
+  --txt:#cce6f8; --txt2:#6b9ab8; --txt3:#2a4a60;
+  --accent:#38bdf8;
+}
+[data-theme="emerald"] {
+  --bg:#030d08; --surf:#061710; --card:#0a2016; --card2:#0e2a1c;
+  --bdr:#113424; --bdr2:#174430;
+  --gold:#4ade80; --gold-l:#86efac; --gold-d:#14532d;
+  --txt:#c6f0d8; --txt2:#5a9472; --txt3:#234d35;
+  --accent:#4ade80;
+}
+[data-theme="rose"] {
+  --bg:#0e060a; --surf:#180d13; --card:#1e1018; --card2:#251420;
+  --bdr:#2e1824; --bdr2:#3d2030;
+  --gold:#fb7185; --gold-l:#fda4af; --gold-d:#881337;
+  --txt:#fce7f0; --txt2:#b06070; --txt3:#5a2535;
+  --accent:#fb7185;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:var(--ff);
+  display:flex; flex-direction:column;
+  height:100dvh;
+  transition:background .3s, color .3s;
+}
+
+/* ══ HEADER ══ */
+.hdr{
+  flex-shrink:0;
+  background:var(--surf);
+  border-bottom:1px solid var(--bdr);
+  padding:10px 16px 10px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.logo-ar{font-family:var(--ffa);font-size:1.7rem;color:var(--gold);line-height:1;}
+.logo-en{font-size:.58rem;letter-spacing:4px;color:var(--txt2);text-transform:uppercase;font-family:var(--ffc);}
+.hdr-date{text-align:right;font-size:.68rem;color:var(--txt2);line-height:1.6;}
+.hdr-date strong{color:var(--gold);font-weight:600;}
+
+/* ══ SCROLL AREA ══ */
+.body-scroll{
+  flex:1; overflow:hidden; position:relative;
+}
+.page{
+  position:absolute;inset:0;
+  overflow-y:auto;overflow-x:hidden;
+  padding:14px 14px 8px;
+  opacity:0;pointer-events:none;
+  transform:translateY(10px);
+  transition:opacity .22s ease, transform .22s ease;
+}
+.page.active{opacity:1;pointer-events:all;transform:none;}
+.page::-webkit-scrollbar{width:3px;}
+.page::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px;}
+
+/* ══ BOTTOM TAB BAR ══ */
+.tab-bar{
+  flex-shrink:0;
+  background:var(--surf);
+  border-top:1px solid var(--bdr);
+  display:flex;
+  padding:6px 0 max(6px,env(safe-area-inset-bottom));
+  position:relative;
+  z-index:100;
+}
+.tab-item{
+  flex:1;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:4px 2px;
+  border:none;background:transparent;cursor:pointer;
+  color:var(--txt3);
+  transition:color .2s;
+  position:relative;
+}
+.tab-item.active{color:var(--gold);}
+.tab-item.active::after{
+  content:'';
+  position:absolute;
+  top:-6px;left:50%;transform:translateX(-50%);
+  width:24px;height:2px;
+  background:var(--gold);
+  border-radius:0 0 3px 3px;
+}
+.tab-icon{font-size:1.35rem;line-height:1;transition:transform .2s;}
+.tab-item.active .tab-icon{transform:translateY(-1px);}
+.tab-lbl{font-size:.58rem;letter-spacing:.8px;text-transform:uppercase;font-family:var(--ff);font-weight:500;}
+
+/* ══ SHARED COMPONENTS ══ */
+.sec-hd{
+  font-size:.6rem;letter-spacing:3px;color:var(--txt3);
+  text-transform:uppercase;margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-hd::after{content:'';flex:1;height:1px;background:var(--bdr);}
+
+.card{
+  background:var(--card);border:1px solid var(--bdr);
+  border-radius:var(--r);overflow:hidden;margin-bottom:12px;
+}
+.card-pad{padding:14px 16px;}
+
+.grand-box{
+  background:linear-gradient(135deg,var(--card),var(--card2));
+  border:1px solid var(--gold-d);border-radius:var(--r);
+  padding:14px 18px;display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:12px;
+}
+.grand-lbl{font-size:.65rem;letter-spacing:2px;color:var(--txt2);text-transform:uppercase;}
+.grand-num{font-family:var(--ffc);font-size:1.9rem;color:var(--gold);font-weight:700;}
+
+.pill-btn{
+  padding:6px 14px;border-radius:30px;
+  border:1px solid var(--bdr2);background:var(--card);
+  color:var(--txt2);font-size:.62rem;letter-spacing:1px;
+  cursor:pointer;transition:all .2s;font-family:var(--ff);
+}
+.pill-btn.sel{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 12%,var(--card));color:var(--gold);}
+
+/* ══ SUB TABS ══ */
+.sub-tabs{display:flex;gap:4px;margin-bottom:12px;background:var(--card);border:1px solid var(--bdr);border-radius:var(--rb);padding:4px;}
+.sub-tab{flex:1;padding:7px 4px;border:none;border-radius:9px;background:transparent;color:var(--txt3);font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;font-family:var(--ff);}
+.sub-tab.active{background:var(--card2);color:var(--gold);border:1px solid var(--bdr2);}
+.sub-page{display:none;}
+.sub-page.active{display:block;}
+
+/* ══ TABLE ══ */
+.tbl-wrap{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:12px;}
+.dhikr-tbl{width:100%;border-collapse:collapse;font-size:.74rem;}
+.dhikr-tbl th{background:var(--surf);color:var(--txt3);font-weight:500;letter-spacing:2px;font-size:.58rem;text-transform:uppercase;padding:8px 10px;text-align:left;border-bottom:1px solid var(--bdr);}
+.dhikr-tbl td{padding:9px 10px;border-bottom:1px solid var(--bdr);vertical-align:middle;}
+.dhikr-tbl tr:last-child td{border-bottom:none;}
+.dhikr-tbl tr:hover td{background:rgba(255,255,255,.018);}
+.tbl-date{color:var(--txt2);font-size:.68rem;}
+.tbl-day{font-size:.58rem;color:var(--txt3);display:block;}
+.tbl-tot{font-family:var(--ffc);color:var(--gold);}
+.empty{text-align:center;padding:28px;color:var(--txt3);font-size:.7rem;letter-spacing:2px;}
+
+/* ══ COUNTER PAGE ══ */
+.carousel{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:6px;scrollbar-width:none;margin-bottom:14px;}
+.carousel::-webkit-scrollbar{display:none;}
+.c-pill{flex-shrink:0;scroll-snap-align:start;background:var(--card);border:1.5px solid var(--bdr);border-radius:40px;padding:8px 14px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:88px;}
+.c-pill .p-ar{font-family:var(--ffa);font-size:1rem;line-height:1.2;color:var(--txt2);transition:color .2s;white-space:nowrap;}
+.c-pill .p-en{font-size:.52rem;letter-spacing:1px;text-transform:uppercase;color:var(--txt3);white-space:nowrap;}
+.c-pill.active{border-color:var(--cc,var(--gold));background:color-mix(in srgb,var(--cc,var(--gold)) 12%,var(--card));}
+.c-pill.active .p-ar{color:var(--cc,var(--gold));}
+.c-pill.active .p-en{color:var(--cc,var(--gold));opacity:.6;}
+
+.ctr-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:22px 16px 18px;text-align:center;margin-bottom:12px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.ctr-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 50% 0%,color-mix(in srgb,var(--cc,var(--gold)) 7%,transparent),transparent 70%);pointer-events:none;}
+.top-line{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cc,var(--gold)),transparent);opacity:.7;}
+.ctr-ar{font-family:var(--ffa);font-size:1.9rem;color:var(--cc,var(--gold));margin-bottom:2px;transition:color .3s;}
+.ctr-en{font-size:.62rem;letter-spacing:2.5px;color:var(--txt2);text-transform:uppercase;margin-bottom:18px;}
+.big-num{font-family:var(--ffc);font-size:5.2rem;font-weight:700;line-height:1;color:var(--txt);margin-bottom:4px;display:inline-block;transition:transform .08s;}
+.big-num.pop{transform:scale(1.1);}
+.cnt-sub{font-size:.62rem;letter-spacing:3px;color:var(--txt3);text-transform:uppercase;margin-bottom:20px;}
+.tgt-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.tgt-lbl{font-size:.65rem;color:var(--txt2);letter-spacing:1px;flex:1;text-align:left;}
+.tgt-inp{width:64px;background:var(--bg);border:1px solid var(--bdr2);border-radius:8px;padding:4px 8px;color:var(--gold);font-family:var(--ffc);font-size:.85rem;text-align:center;outline:none;}
+.tgt-inp:focus{border-color:var(--gold-d);}
+.prog{height:3px;background:var(--bdr);border-radius:2px;overflow:hidden;margin-bottom:16px;}
+.prog-fill{height:100%;border-radius:2px;background:var(--cc,var(--gold));transition:width .4s ease;}
+.tap-wrap{display:flex;justify-content:center;margin-bottom:14px;}
+.tap-btn{width:96px;height:96px;border-radius:50%;border:2px solid var(--cc,var(--gold));background:radial-gradient(circle at 38% 38%,color-mix(in srgb,var(--cc,var(--gold)) 14%,transparent),transparent 70%);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:transform .12s ease,box-shadow .12s ease;}
+.tap-btn:active{transform:scale(.89);box-shadow:0 0 22px color-mix(in srgb,var(--cc,var(--gold)) 35%,transparent);}
+.tap-icon{font-size:2rem;line-height:1;}
+.tap-lbl{font-size:.58rem;letter-spacing:2px;color:var(--txt2);text-transform:uppercase;}
+.act-row{display:flex;gap:8px;justify-content:center;}
+.act-btn{padding:7px 16px;border-radius:20px;border:1px solid var(--bdr2);background:var(--surf);color:var(--txt2);font-size:.7rem;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+.act-btn:hover{border-color:var(--gold-d);color:var(--gold);}
+.act-btn.danger:hover{border-color:#ef4444;color:#ef4444;}
+
+.today-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.ts-box{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rb);padding:11px 6px;text-align:center;}
+.ts-ar{font-family:var(--ffa);font-size:.9rem;margin-bottom:3px;}
+.ts-num{font-family:var(--ffc);font-size:1.3rem;font-weight:700;}
+.ts-lbl{font-size:.55rem;letter-spacing:1px;color:var(--txt3);text-transform:uppercase;margin-top:2px;}
+
+/* ══ STATS PAGE ══ */
+.cat-stat{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.csi{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:13px 14px;display:flex;align-items:center;gap:12px;}
+.csi-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.csi-info{flex:1;}
+.csi-ar{font-family:var(--ffa);font-size:1.05rem;line-height:1.2;}
+.csi-en{font-size:.58rem;letter-spacing:2px;color:var(--txt3);text-transform:uppercase;margin-top:1px;}
+.csi-bw{height:3px;background:var(--bdr);border-radius:2px;margin-top:6px;}
+.csi-bf{height:100%;border-radius:2px;transition:width .6s ease;}
+.csi-right{text-align:right;}
+.csi-num{font-family:var(--ffc);font-size:1.35rem;font-weight:700;}
+.csi-pct{font-size:.58rem;color:var(--txt3);margin-top:2px;}
+
+/* ══ PROFILE PAGE ══ */
+.avatar-wrap{display:flex;flex-direction:column;align-items:center;padding:24px 0 18px;}
+.avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--card2),var(--card));border:2px solid var(--gold-d);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin-bottom:12px;position:relative;cursor:pointer;}
+.avatar-edit{position:absolute;bottom:0;right:0;width:22px;height:22px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#000;}
+.profile-name{font-family:var(--ffc);font-size:1.2rem;color:var(--txt);margin-bottom:3px;}
+.profile-sub{font-size:.68rem;color:var(--txt2);letter-spacing:1px;}
+.stat-badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.badge{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rb);padding:12px 8px;text-align:center;}
+.badge-num{font-family:var(--ffc);font-size:1.4rem;color:var(--gold);font-weight:700;}
+.badge-lbl{font-size:.58rem;color:var(--txt3);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+.form-field{margin-bottom:10px;}
+.form-lbl{font-size:.65rem;letter-spacing:2px;color:var(--txt3);text-transform:uppercase;margin-bottom:5px;}
+.form-inp{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:10px;padding:10px 14px;color:var(--txt);font-family:var(--ff);font-size:.88rem;outline:none;transition:border-color .2s;}
+.form-inp:focus{border-color:var(--gold-d);}
+.save-btn{width:100%;padding:12px;border-radius:var(--rb);border:none;background:linear-gradient(135deg,var(--gold-d),var(--gold));color:#000;font-family:var(--ffc);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:opacity .2s;}
+.save-btn:hover{opacity:.85;}
+
+/* ══ SETTINGS PAGE ══ */
+.settings-group{margin-bottom:16px;}
+.sg-title{font-size:.6rem;letter-spacing:3px;color:var(--txt3);text-transform:uppercase;margin-bottom:8px;padding-left:4px;}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--card);border-bottom:1px solid var(--bdr);}
+.settings-group .card{border-radius:var(--r);overflow:hidden;margin:0;}
+.settings-group .card .setting-row:last-child{border-bottom:none;}
+.sr-left{display:flex;align-items:center;gap:12px;}
+.sr-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.sr-lbl{font-size:.85rem;color:var(--txt);}
+.sr-sub{font-size:.62rem;color:var(--txt3);margin-top:1px;}
+.sr-right{display:flex;align-items:center;gap:8px;color:var(--txt2);font-size:.75rem;}
+
+/* Toggle Switch */
+.toggle{width:44px;height:24px;background:var(--bdr2);border-radius:12px;position:relative;cursor:pointer;transition:background .25s;flex-shrink:0;}
+.toggle.on{background:var(--gold);}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.toggle.on::after{transform:translateX(20px);}
+
+/* Theme Grid */
+.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;}
+.theme-swatch{border-radius:var(--rb);padding:10px 4px;border:2px solid transparent;cursor:pointer;text-align:center;transition:all .2s;background:var(--card);}
+.theme-swatch.sel{border-color:var(--gold);}
+.swatch-dot{width:28px;height:28px;border-radius:50%;margin:0 auto 5px;}
+.swatch-lbl{font-size:.55rem;letter-spacing:1px;color:var(--txt2);text-transform:uppercase;}
+
+/* Language Grid */
+.lang-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+.lang-item{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--rb);padding:12px 14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;}
+.lang-item.sel{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 8%,var(--card));}
+.lang-flag{font-size:1.5rem;line-height:1;}
+.lang-name{font-size:.8rem;color:var(--txt);}
+.lang-native{font-size:.62rem;color:var(--txt3);margin-top:2px;}
+.lang-check{margin-left:auto;font-size:.85rem;color:var(--gold);opacity:0;}
+.lang-item.sel .lang-check{opacity:1;}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-90px);background:var(--card2);border:1px solid var(--gold-d);border-radius:30px;padding:10px 22px;font-family:var(--ffa);font-size:1.15rem;color:var(--gold);white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.7);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ══ SCROLL-RESTORE ══ */
+select{background:var(--card);border:1px solid var(--bdr2);border-radius:8px;padding:8px 12px;color:var(--txt);font-family:var(--ff);font-size:.82rem;outline:none;width:100%;margin-bottom:8px;}
+option{background:var(--card);}
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <div class="logo-ar">ذِكر</div>
+    <div class="logo-en">Dhikr Counter</div>
+  </div>
+  <div class="hdr-date">
+    <strong id="hdr-date"></strong><br>
+    <span id="hdr-day"></span>
+  </div>
+</div>
+
+<!-- SCROLL BODY -->
+<div class="body-scroll">
+
+  <!-- ══ COUNTER ══ -->
+  <div class="page active" id="pg-counter">
+    <div class="sec-hd" style="margin-bottom:6px">Select Dhikr</div>
+    <div class="carousel" id="carousel"></div>
+
+    <div class="ctr-card" id="ctr-card">
+      <div class="top-line"></div>
+      <div class="ctr-ar" id="ctr-ar"></div>
+      <div class="ctr-en" id="ctr-en"></div>
+      <div class="big-num" id="big-num">0</div>
+      <div class="cnt-sub" id="cnt-sub-lbl">TODAY'S COUNT</div>
+      <div class="tgt-row">
+        <span class="tgt-lbl" id="tgt-lbl-txt">DAILY TARGET</span>
+        <input class="tgt-inp" type="number" id="tgt-inp" value="33" min="1" max="9999" onchange="saveTarget()">
+      </div>
+      <div class="prog"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="tap-wrap">
+        <button class="tap-btn" id="tap-btn" onclick="increment()">
+          <div class="tap-icon">☽</div>
+          <div class="tap-lbl" id="tap-lbl-txt">TAP</div>
+        </button>
+      </div>
+      <div class="act-row">
+        <button class="act-btn" onclick="undo()" id="btn-undo">↩ Undo</button>
+        <button class="act-btn danger" onclick="resetToday()" id="btn-reset">✕ Reset</button>
+      </div>
+    </div>
+
+    <div class="sec-hd" id="sec-today-sum">Today's Summary</div>
+    <div class="today-grid" id="today-grid"></div>
+    <div class="grand-box">
+      <div class="grand-lbl" id="lbl-today-grand">Today Grand Total</div>
+      <div class="grand-num" id="today-grand">0</div>
+    </div>
+  </div>
+
+  <!-- ══ HISTORY ══ -->
+  <div class="page" id="pg-history">
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="showSub('hist-date',this)" id="tab-hist-date">Date Wise</button>
+      <button class="sub-tab" onclick="showSub('hist-cat',this)" id="tab-hist-cat">Category</button>
+    </div>
+
+    <div class="sub-page active" id="hist-date">
+      <div class="sec-hd" id="lbl-daily-rec">Daily Records</div>
+      <div class="tbl-wrap">
+        <table class="dhikr-tbl">
+          <thead><tr>
+            <th id="th-date">Date</th>
+            <th id="col-h1"></th><th id="col-h2"></th><th id="col-h3"></th>
+            <th id="th-more">More</th>
+            <th id="th-total">Total</th>
+          </tr></thead>
+          <tbody id="hist-date-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sub-page" id="hist-cat">
+      <div class="sec-hd" id="lbl-cat-hist">Category History</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;" id="cat-sel-btns"></div>
+      <div class="tbl-wrap">
+        <table class="dhikr-tbl">
+          <thead><tr>
+            <th id="th-date2">Date</th>
+            <th id="th-count">Count</th>
+            <th id="th-running">Running Total</th>
+          </tr></thead>
+          <tbody id="cat-hist-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STATS ══ -->
+  <div class="page" id="pg-stats">
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="showSub('st-all',this)" id="tab-st-all">All Time</button>
+      <button class="sub-tab" onclick="showSub('st-today',this)" id="tab-st-today">Today</button>
+      <button class="sub-tab" onclick="showSub('st-week',this)" id="tab-st-week">This Week</button>
+    </div>
+    <div class="sub-page active" id="st-all">
+      <div class="sec-hd" id="lbl-cat-bk">Category Breakdown</div>
+      <div class="cat-stat" id="st-all-list"></div>
+      <div class="grand-box"><div class="grand-lbl" id="lbl-alltime">All-Time Grand Total</div><div class="grand-num" id="st-all-tot">0</div></div>
+    </div>
+    <div class="sub-page" id="st-today">
+      <div class="sec-hd" id="lbl-td-bk">Today's Breakdown</div>
+      <div class="cat-stat" id="st-today-list"></div>
+      <div class="grand-box"><div class="grand-lbl" id="lbl-td-gt">Today Grand Total</div><div class="grand-num" id="st-today-tot">0</div></div>
+    </div>
+    <div class="sub-page" id="st-week">
+      <div class="sec-hd" id="lbl-wk-bk">Week Breakdown</div>
+      <div class="cat-stat" id="st-week-list"></div>
+      <div class="grand-box"><div class="grand-lbl" id="lbl-wk-gt">Week Grand Total</div><div class="grand-num" id="st-week-tot">0</div></div>
+    </div>
+  </div>
+
+  <!-- ══ PROFILE ══ -->
+  <div class="page" id="pg-profile">
+    <div class="avatar-wrap">
+      <div class="avatar" onclick="changeAvatar()">
+        <span id="profile-avatar">🤲</span>
+        <div class="avatar-edit">✏</div>
+      </div>
+      <div class="profile-name" id="disp-name">My Profile</div>
+      <div class="profile-sub" id="disp-location">📍 Add your location</div>
+    </div>
+
+    <div class="stat-badges">
+      <div class="badge"><div class="badge-num" id="badge-total">0</div><div class="badge-lbl" id="lbl-b-total">Total</div></div>
+      <div class="badge"><div class="badge-num" id="badge-days">0</div><div class="badge-lbl" id="lbl-b-days">Days</div></div>
+      <div class="badge"><div class="badge-num" id="badge-streak">0</div><div class="badge-lbl" id="lbl-b-streak">Streak</div></div>
+    </div>
+
+    <div class="sec-hd" id="lbl-profile-info">Profile Information</div>
+    <div class="card card-pad" style="margin-bottom:12px;">
+      <div class="form-field">
+        <div class="form-lbl" id="lbl-name">Name</div>
+        <input class="form-inp" type="text" id="inp-name" placeholder="Your name">
+      </div>
+      <div class="form-field">
+        <div class="form-lbl" id="lbl-location">Location</div>
+        <input class="form-inp" type="text" id="inp-location" placeholder="City, Country">
+      </div>
+      <div class="form-field">
+        <div class="form-lbl" id="lbl-goal">Daily Goal (Total)</div>
+        <input class="form-inp" type="number" id="inp-goal" placeholder="e.g. 100" value="100">
+      </div>
+    </div>
+    <button class="save-btn" onclick="saveProfile()" id="btn-save-profile">Save Profile</button>
+  </div>
+
+  <!-- ══ SETTINGS ══ -->
+  <div class="page" id="pg-settings">
+
+    <!-- THEME -->
+    <div class="settings-group">
+      <div class="sg-title" id="lbl-theme">Theme</div>
+      <div class="theme-grid">
+        <div class="theme-swatch sel" data-theme="dark" onclick="setTheme('dark',this)">
+          <div class="swatch-dot" style="background:linear-gradient(135deg,#08090d,#1e2333)"></div>
+          <div class="swatch-lbl" id="sw-dark">Dark</div>
+        </div>
+        <div class="theme-swatch" data-theme="light" onclick="setTheme('light',this)">
+          <div class="swatch-dot" style="background:linear-gradient(135deg,#f5f0e8,#ede8dc)"></div>
+          <div class="swatch-lbl" id="sw-light">Light</div>
+        </div>
+        <div class="theme-swatch" data-theme="ocean" onclick="setTheme('ocean',this)">
+          <div class="swatch-dot" style="background:linear-gradient(135deg,#040d18,#38bdf8)"></div>
+          <div class="swatch-lbl" id="sw-ocean">Ocean</div>
+        </div>
+        <div class="theme-swatch" data-theme="emerald" onclick="setTheme('emerald',this)">
+          <div class="swatch-dot" style="background:linear-gradient(135deg,#030d08,#4ade80)"></div>
+          <div class="swatch-lbl" id="sw-emerald">Emerald</div>
+        </div>
+        <div class="theme-swatch" data-theme="rose" onclick="setTheme('rose',this)">
+          <div class="swatch-dot" style="background:linear-gradient(135deg,#0e060a,#fb7185)"></div>
+          <div class="swatch-lbl" id="sw-rose">Rose</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANGUAGE -->
+    <div class="settings-group">
+      <div class="sg-title" id="lbl-language">Language</div>
+      <div class="lang-grid" id="lang-grid">
+        <div class="lang-item sel" data-lang="en" onclick="setLang('en',this)">
+          <div class="lang-flag">🇬🇧</div>
+          <div><div class="lang-name">English</div><div class="lang-native">English</div></div>
+          <div class="lang-check">✓</div>
+        </div>
+        <div class="lang-item" data-lang="ar" onclick="setLang('ar',this)">
+          <div class="lang-flag">🇸🇦</div>
+          <div><div class="lang-name">Arabic</div><div class="lang-native">عربي</div></div>
+          <div class="lang-check">✓</div>
+        </div>
+        <div class="lang-item" data-lang="bn" onclick="setLang('bn',this)">
+          <div class="lang-flag">🇧🇩</div>
+          <div><div class="lang-name">Bengali</div><div class="lang-native">বাংলা</div></div>
+          <div class="lang-check">✓</div>
+        </div>
+        <div class="lang-item" data-lang="ur" onclick="setLang('ur',this)">
+          <div class="lang-flag">🇵🇰</div>
+          <div><div class="lang-name">Urdu</div><div class="lang-native">اردو</div></div>
+          <div class="lang-check">✓</div>
+        </div>
+        <div class="lang-item" data-lang="tr" onclick="setLang('tr',this)">
+          <div class="lang-flag">🇹🇷</div>
+          <div><div class="lang-name">Turkish</div><div class="lang-native">Türkçe</div></div>
+          <div class="lang-check">✓</div>
+        </div>
+        <div class="lang-item" data-lang="id" onclick="setLang('id',this)">
+          <div class="lang-flag">🇮🇩</div>
+          <div><div class="lang-name">Indonesian</div><div class="lang-native">Bahasa</div></div>
+          <div class="lang-check">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERAL SETTINGS -->
+    <div class="settings-group">
+      <div class="sg-title" id="lbl-general">General</div>
+      <div class="card" style="margin:0;">
+        <div class="setting-row">
+          <div class="sr-left">
+            <div class="sr-icon" style="background:color-mix(in srgb,var(--gold) 15%,var(--card2))">🔔</div>
+            <div><div class="sr-lbl" id="sr-vibration">Vibration</div><div class="sr-sub" id="sr-vibration-sub">Haptic on tap</div></div>
+          </div>
+          <div class="toggle on" id="tog-vib" onclick="this.classList.toggle('on');saveSettings()"></div>
+        </div>
+        <div class="setting-row">
+          <div class="sr-left">
+            <div class="sr-icon" style="background:color-mix(in srgb,#60a5fa 15%,var(--card2))">🔊</div>
+            <div><div class="sr-lbl" id="sr-sound">Sound</div><div class="sr-sub" id="sr-sound-sub">Click sound on tap</div></div>
+          </div>
+          <div class="toggle" id="tog-sound" onclick="this.classList.toggle('on');saveSettings()"></div>
+        </div>
+        <div class="setting-row">
+          <div class="sr-left">
+            <div class="sr-icon" style="background:color-mix(in srgb,#4ade80 15%,var(--card2))">🌙</div>
+            <div><div class="sr-lbl" id="sr-keepon">Keep Screen On</div><div class="sr-sub" id="sr-keepon-sub">Prevent sleep during dhikr</div></div>
+          </div>
+          <div class="toggle" id="tog-screen" onclick="this.classList.toggle('on');saveSettings()"></div>
+        </div>
+        <div class="setting-row">
+          <div class="sr-left">
+            <div class="sr-icon" style="background:color-mix(in srgb,#f97316 15%,var(--card2))">🎯</div>
+            <div><div class="sr-lbl" id="sr-milestone">Milestone Alerts</div><div class="sr-sub" id="sr-milestone-sub">Notify at 33, 99, 100+</div></div>
+          </div>
+          <div class="toggle on" id="tog-milestone" onclick="this.classList.toggle('on');saveSettings()"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA -->
+    <div class="settings-group">
+      <div class="sg-title" id="lbl-data">Data</div>
+      <div class="card" style="margin:0;">
+        <div class="setting-row" style="cursor:pointer" onclick="exportData()">
+          <div class="sr-left">
+            <div class="sr-icon" style="background:color-mix(in srgb,var(--gold) 15%,var(--card2))">📤</div>
+            <div><div class="sr-lbl" id="sr-export">Export Data</div><div class="sr-sub" id="sr-export-sub">Download as JSON</div></div>
+          </div>
+          <div class="sr-right">›</div>
+        </div>
+        <div class="setting-row" style="cursor:pointer" onclick="clearAllData()">
+          <div class="sr-left">
+            <div class="sr-icon" style="background:color-mix(in srgb,#ef4444 15%,var(--card2))">🗑</div>
+            <div><div class="sr-lbl" style="color:#ef4444" id="sr-clear">Clear All Data</div><div class="sr-sub" id="sr-clear-sub">Permanently delete records</div></div>
+          </div>
+          <div class="sr-right">›</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:16px 0;color:var(--txt3);font-size:.6rem;letter-spacing:2px;">
+      ذِكر v3.0 · بِسْمِ اللّٰه
+    </div>
+  </div>
+
+</div><!-- /body-scroll -->
+
+<!-- BOTTOM TAB BAR -->
+<nav class="tab-bar">
+  <button class="tab-item active" onclick="showPage('counter',this)" id="tab-counter">
+    <div class="tab-icon">📿</div>
+    <div class="tab-lbl" id="tab-lbl-counter">Counter</div>
+  </button>
+  <button class="tab-item" onclick="showPage('history',this)" id="tab-history">
+    <div class="tab-icon">📅</div>
+    <div class="tab-lbl" id="tab-lbl-history">History</div>
+  </button>
+  <button class="tab-item" onclick="showPage('stats',this)" id="tab-stats">
+    <div class="tab-icon">📊</div>
+    <div class="tab-lbl" id="tab-lbl-stats">Stats</div>
+  </button>
+  <button class="tab-item" onclick="showPage('profile',this)" id="tab-profile">
+    <div class="tab-icon">👤</div>
+    <div class="tab-lbl" id="tab-lbl-profile">Profile</div>
+  </button>
+  <button class="tab-item" onclick="showPage('settings',this)" id="tab-settings">
+    <div class="tab-icon">⚙️</div>
+    <div class="tab-lbl" id="tab-lbl-settings">Settings</div>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════
+   DHIKR DATA
+══════════════════════════════════ */
+const DHIKRS = [
+  {id:'subhanallah',   ar:'سُبْحَانَ اللّٰه',          en:'Subhanallah',      meaning:'Glory be to Allah',              color:'#4ade80', target:33},
+  {id:'laelaha',       ar:'لَا إِلَٰهَ إِلَّا اللّٰه', en:'La Elaha Illela',  meaning:'There is no god but Allah',      color:'#60a5fa', target:33},
+  {id:'allahuakbar',   ar:'اللّٰهُ أَكْبَر',            en:'Allahu Akbar',     meaning:'Allah is the Greatest',          color:'#f97316', target:34},
+  {id:'alhamdulillah', ar:'الْحَمْدُ لِلّٰه',            en:'Alhamdulillah',    meaning:'Praise be to Allah',             color:'#e879f9', target:33},
+  {id:'astaghfirullah',ar:'أَسْتَغْفِرُ اللّٰه',        en:'Astaghfirullah',   meaning:'I seek forgiveness from Allah',  color:'#fb7185', target:100},
+  {id:'salawat',       ar:'صَلَّى اللّٰهُ عَلَيْهِ',    en:'Salawat',          meaning:'Blessings on the Prophet ﷺ',     color:'#a78bfa', target:10},
+  {id:'hasbunallah',   ar:'حَسْبُنَا اللّٰه',            en:'Hasbunallah',      meaning:'Allah is sufficient for us',     color:'#34d399', target:33},
+  {id:'laHawla',       ar:'لَا حَوْلَ وَلَا قُوَّةَ',   en:'La Hawla',         meaning:'No power except with Allah',     color:'#fbbf24', target:33},
+  {id:'bismillah',     ar:'بِسْمِ اللّٰه',               en:'Bismillah',        meaning:'In the name of Allah',           color:'#67e8f9', target:21},
+  {id:'innalillah',    ar:'إِنَّا لِلّٰهِ',              en:'Innalillah',       meaning:'Indeed we belong to Allah',      color:'#94a3b8', target:10},
+];
+
+/* ══════════════════════════════════
+   TRANSLATIONS
+══════════════════════════════════ */
+const T = {
+  en:{
+    counter:'Counter',history:'History',stats:'Stats',profile:'Profile',settings:'Settings',
+    selectDhikr:'Select Dhikr',todayCount:"TODAY'S COUNT",dailyTarget:'DAILY TARGET',tap:'TAP',
+    undo:'↩ Undo',reset:'✕ Reset',todaySummary:"Today's Summary",todayGrand:'Today Grand Total',
+    dateWise:'Date Wise',category:'Category',allTime:'All Time',today:'Today',thisWeek:'This Week',
+    catBreakdown:'Category Breakdown',allTimeGrand:'All-Time Grand Total',
+    todayBreakdown:"Today's Breakdown",todayGrand2:'Today Grand Total',
+    weekBreakdown:'Week Breakdown',weekGrand:'Week Grand Total',
+    profileInfo:'Profile Information',name:'Name',location:'Location',
+    dailyGoal:'Daily Goal (Total)',saveProfile:'Save Profile',
+    totalDhikr:'Total',daysActive:'Days',currentStreak:'Streak',
+    dailyRecords:'Daily Records',catHistory:'Category History',
+    date:'Date',more:'More',total:'Total',count:'Count',running:'Running Total',
+    theme:'Theme',language:'Language',general:'General',data:'Data',
+    vibration:'Vibration',haptic:'Haptic on tap',sound:'Sound',clickSound:'Click sound on tap',
+    keepOn:'Keep Screen On',preventSleep:'Prevent sleep during dhikr',
+    milestones:'Milestone Alerts',milestonesSub:'Notify at 33, 99, 100+',
+    export:'Export Data',exportSub:'Download as JSON',
+    clearData:'Clear All Data',clearSub:'Permanently delete records',
+    dark:'Dark',light:'Light',ocean:'Ocean',emerald:'Emerald',rose:'Rose',
+  },
+  ar:{
+    counter:'العداد',history:'السجل',stats:'إحصاء',profile:'الملف',settings:'الإعدادات',
+    selectDhikr:'اختر الذكر',todayCount:'عدد اليوم',dailyTarget:'هدف يومي',tap:'اضغط',
+    undo:'↩ تراجع',reset:'✕ إعادة',todaySummary:'ملخص اليوم',todayGrand:'مجموع اليوم',
+    dateWise:'حسب التاريخ',category:'حسب الذكر',allTime:'الكل',today:'اليوم',thisWeek:'الأسبوع',
+    catBreakdown:'تفاصيل الذكر',allTimeGrand:'الإجمالي الكلي',
+    todayBreakdown:'تفاصيل اليوم',todayGrand2:'مجموع اليوم',
+    weekBreakdown:'تفاصيل الأسبوع',weekGrand:'مجموع الأسبوع',
+    profileInfo:'معلومات الملف',name:'الاسم',location:'الموقع',
+    dailyGoal:'الهدف اليومي',saveProfile:'حفظ الملف',
+    totalDhikr:'المجموع',daysActive:'الأيام',currentStreak:'التسلسل',
+    dailyRecords:'السجلات اليومية',catHistory:'تاريخ الذكر',
+    date:'التاريخ',more:'المزيد',total:'المجموع',count:'العدد',running:'المجموع المتراكم',
+    theme:'المظهر',language:'اللغة',general:'عام',data:'البيانات',
+    vibration:'الاهتزاز',haptic:'اهتزاز عند الضغط',sound:'الصوت',clickSound:'صوت عند الضغط',
+    keepOn:'إبقاء الشاشة',preventSleep:'منع الإغفاء أثناء الذكر',
+    milestones:'تنبيهات المراحل',milestonesSub:'تنبيه عند 33 و99 و100+',
+    export:'تصدير البيانات',exportSub:'تنزيل JSON',
+    clearData:'مسح كل البيانات',clearSub:'حذف دائم للسجلات',
+    dark:'داكن',light:'فاتح',ocean:'محيط',emerald:'زمرد',rose:'وردي',
+  },
+  bn:{
+    counter:'কাউন্টার',history:'ইতিহাস',stats:'পরিসংখ্যান',profile:'প্রোফাইল',settings:'সেটিংস',
+    selectDhikr:'জিকির নির্বাচন করুন',todayCount:'আজকের গণনা',dailyTarget:'দৈনিক লক্ষ্য',tap:'চাপুন',
+    undo:'↩ পূর্বাবস্থা',reset:'✕ রিসেট',todaySummary:'আজকের সারাংশ',todayGrand:'আজকের মোট',
+    dateWise:'তারিখ অনুযায়ী',category:'বিভাগ',allTime:'সর্বকাল',today:'আজ',thisWeek:'এই সপ্তাহ',
+    catBreakdown:'বিভাগ বিশ্লেষণ',allTimeGrand:'সর্বকালীন মোট',
+    todayBreakdown:'আজকের বিশ্লেষণ',todayGrand2:'আজকের মোট',
+    weekBreakdown:'সাপ্তাহিক বিশ্লেষণ',weekGrand:'সপ্তাহের মোট',
+    profileInfo:'প্রোফাইল তথ্য',name:'নাম',location:'অবস্থান',
+    dailyGoal:'দৈনিক লক্ষ্য',saveProfile:'প্রোফাইল সংরক্ষণ',
+    totalDhikr:'মোট',daysActive:'দিন',currentStreak:'ধারা',
+    dailyRecords:'দৈনিক রেকর্ড',catHistory:'বিভাগের ইতিহাস',
+    date:'তারিখ',more:'আরো',total:'মোট',count:'গণনা',running:'চলমান মোট',
+    theme:'থিম',language:'ভাষা',general:'সাধারণ',data:'ডেটা',
+    vibration:'কম্পন',haptic:'ট্যাপে কম্পন',sound:'শব্দ',clickSound:'ট্যাপে ক্লিক শব্দ',
+    keepOn:'স্ক্রিন চালু রাখুন',preventSleep:'জিকিরের সময় ঘুম বন্ধ',
+    milestones:'মাইলস্টোন সতর্কতা',milestonesSub:'৩৩, ৯৯, ১০০+ এ জানান',
+    export:'ডেটা রপ্তানি করুন',exportSub:'JSON হিসেবে ডাউনলোড',
+    clearData:'সব ডেটা মুছুন',clearSub:'স্থায়ীভাবে রেকর্ড মুছুন',
+    dark:'অন্ধকার',light:'আলো',ocean:'সমুদ্র',emerald:'পান্না',rose:'গোলাপ',
+  },
+  ur:{
+    counter:'کاؤنٹر',history:'تاریخ',stats:'اعداد',profile:'پروفائل',settings:'ترتیبات',
+    selectDhikr:'ذکر منتخب کریں',todayCount:'آج کی گنتی',dailyTarget:'روزانہ ہدف',tap:'دبائیں',
+    undo:'↩ واپس',reset:'✕ ری سیٹ',todaySummary:'آج کا خلاصہ',todayGrand:'آج کا کل',
+    dateWise:'تاریخ کے مطابق',category:'زمرہ',allTime:'کل وقت',today:'آج',thisWeek:'اس ہفتے',
+    catBreakdown:'زمرہ جائزہ',allTimeGrand:'کل کا مجموعہ',
+    todayBreakdown:'آج کا جائزہ',todayGrand2:'آج کا کل',
+    weekBreakdown:'ہفتے کا جائزہ',weekGrand:'ہفتے کا کل',
+    profileInfo:'پروفائل معلومات',name:'نام',location:'مقام',
+    dailyGoal:'روزانہ ہدف',saveProfile:'پروفائل محفوظ کریں',
+    totalDhikr:'کل',daysActive:'دن',currentStreak:'سلسلہ',
+    dailyRecords:'روزانہ ریکارڈ',catHistory:'ذکر کی تاریخ',
+    date:'تاریخ',more:'مزید',total:'کل',count:'گنتی',running:'رواں مجموعہ',
+    theme:'تھیم',language:'زبان',general:'عام',data:'ڈیٹا',
+    vibration:'وائبریشن',haptic:'ٹیپ پر ہلکا',sound:'آواز',clickSound:'ٹیپ پر آواز',
+    keepOn:'اسکرین چالو رکھیں',preventSleep:'ذکر کے دوران نیند روکیں',
+    milestones:'سنگ میل الرٹ',milestonesSub:'33، 99، 100+ پر اطلاع',
+    export:'ڈیٹا برآمد کریں',exportSub:'JSON ڈاؤن لوڈ',
+    clearData:'تمام ڈیٹا صاف کریں',clearSub:'ریکارڈ مستقل طور پر حذف کریں',
+    dark:'تاریک',light:'روشن',ocean:'سمندر',emerald:'زمرد',rose:'گلاب',
+  },
+  tr:{
+    counter:'Sayaç',history:'Geçmiş',stats:'İstatistik',profile:'Profil',settings:'Ayarlar',
+    selectDhikr:'Zikir Seç',todayCount:'BUGÜNKÜ SAYI',dailyTarget:'GÜNLÜK HEDEF',tap:'DOKUN',
+    undo:'↩ Geri Al',reset:'✕ Sıfırla',todaySummary:'Bugünün Özeti',todayGrand:'Bugün Toplamı',
+    dateWise:'Tarihe Göre',category:'Kategoriye Göre',allTime:'Tüm Zamanlar',today:'Bugün',thisWeek:'Bu Hafta',
+    catBreakdown:'Kategori Dağılımı',allTimeGrand:'Tüm Zamanlar Toplamı',
+    todayBreakdown:'Bugünün Dağılımı',todayGrand2:'Bugün Toplamı',
+    weekBreakdown:'Haftalık Dağılım',weekGrand:'Hafta Toplamı',
+    profileInfo:'Profil Bilgileri',name:'Ad',location:'Konum',
+    dailyGoal:'Günlük Hedef',saveProfile:'Profili Kaydet',
+    totalDhikr:'Toplam',daysActive:'Günler',currentStreak:'Seri',
+    dailyRecords:'Günlük Kayıtlar',catHistory:'Kategori Geçmişi',
+    date:'Tarih',more:'Daha',total:'Toplam',count:'Sayı',running:'Kümülatif',
+    theme:'Tema',language:'Dil',general:'Genel',data:'Veri',
+    vibration:'Titreşim',haptic:'Dokunuşta titreşim',sound:'Ses',clickSound:'Dokunuşta ses',
+    keepOn:'Ekranı Açık Tut',preventSleep:'Zikir sırasında uyku engeli',
+    milestones:'Kilometre Uyarıları',milestonesSub:'33, 99, 100+ bildir',
+    export:'Veriyi Dışa Aktar',exportSub:"JSON olarak indir",
+    clearData:'Tüm Verileri Sil',clearSub:'Kayıtları kalıcı sil',
+    dark:'Koyu',light:'Açık',ocean:'Okyanus',emerald:'Zümrüt',rose:'Gül',
+  },
+  id:{
+    counter:'Penghitung',history:'Riwayat',stats:'Statistik',profile:'Profil',settings:'Pengaturan',
+    selectDhikr:'Pilih Dzikir',todayCount:'HITUNGAN HARI INI',dailyTarget:'TARGET HARIAN',tap:'KETUK',
+    undo:'↩ Urungkan',reset:'✕ Reset',todaySummary:'Ringkasan Hari Ini',todayGrand:'Total Hari Ini',
+    dateWise:'Per Tanggal',category:'Per Kategori',allTime:'Sepanjang Waktu',today:'Hari Ini',thisWeek:'Minggu Ini',
+    catBreakdown:'Rincian Kategori',allTimeGrand:'Total Sepanjang Waktu',
+    todayBreakdown:'Rincian Hari Ini',todayGrand2:'Total Hari Ini',
+    weekBreakdown:'Rincian Minggu',weekGrand:'Total Minggu',
+    profileInfo:'Informasi Profil',name:'Nama',location:'Lokasi',
+    dailyGoal:'Target Harian',saveProfile:'Simpan Profil',
+    totalDhikr:'Total',daysActive:'Hari',currentStreak:'Deretan',
+    dailyRecords:'Catatan Harian',catHistory:'Riwayat Kategori',
+    date:'Tanggal',more:'Lainnya',total:'Total',count:'Hitungan',running:'Total Kumulatif',
+    theme:'Tema',language:'Bahasa',general:'Umum',data:'Data',
+    vibration:'Getaran',haptic:'Getar saat ketuk',sound:'Suara',clickSound:'Klik saat ketuk',
+    keepOn:'Layar Tetap Nyala',preventSleep:'Cegah tidur saat dzikir',
+    milestones:'Peringatan Milestone',milestonesSub:'Beri tahu di 33, 99, 100+',
+    export:'Ekspor Data',exportSub:'Unduh sebagai JSON',
+    clearData:'Hapus Semua Data',clearSub:'Hapus catatan secara permanen',
+    dark:'Gelap',light:'Terang',ocean:'Samudra',emerald:'Zamrud',rose:'Mawar',
+  },
+};
+
+/* ══════════════════════════════════
+   STATE
+══════════════════════════════════ */
+let S = {
+  cur:'subhanallah', data:{}, targets:{}, undo:[], selCat:'subhanallah',
+  theme:'dark', lang:'en',
+  profile:{ name:'', location:'', goal:100, avatar:'🤲' },
+  settings:{ vibration:true, sound:false, keepOn:false, milestone:true },
+};
+
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS_SH=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYS_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function today(){ return new Date().toISOString().split('T')[0]; }
+function getDhikr(id){ return DHIKRS.find(d=>d.id===id); }
+function getCount(date,id){ return (S.data[date]&&S.data[date][id])||0; }
+function allDates(){ return Object.keys(S.data).sort((a,b)=>b.localeCompare(a)); }
+function t(k){ return (T[S.lang]||T.en)[k]||k; }
+
+/* ══════════════════════════════════
+   PERSIST
+══════════════════════════════════ */
+function load(){
+  try{ S.data     = JSON.parse(localStorage.getItem('dz3_data')||'{}'); }catch(e){}
+  try{ S.targets  = JSON.parse(localStorage.getItem('dz3_targets')||'{}'); }catch(e){}
+  try{ Object.assign(S.profile, JSON.parse(localStorage.getItem('dz3_profile')||'{}')); }catch(e){}
+  try{ Object.assign(S.settings, JSON.parse(localStorage.getItem('dz3_settings')||'{}')); }catch(e){}
+  S.theme = localStorage.getItem('dz3_theme')||'dark';
+  S.lang  = localStorage.getItem('dz3_lang')||'en';
+  DHIKRS.forEach(d=>{ if(!(d.id in S.targets)) S.targets[d.id]=d.target; });
+}
+function saveData(){ localStorage.setItem('dz3_data',JSON.stringify(S.data)); }
+function saveTargets(){ localStorage.setItem('dz3_targets',JSON.stringify(S.targets)); }
+
+/* ══════════════════════════════════
+   ACTIONS
+══════════════════════════════════ */
+function increment(){
+  ensureToday();
+  S.data[today()][S.cur]++;
+  S.undo.push({date:today(),id:S.cur});
+  const num=document.getElementById('big-num');
+  num.classList.add('pop'); setTimeout(()=>num.classList.remove('pop'),120);
+  if(S.settings.vibration && navigator.vibrate) navigator.vibrate(20);
+  const cnt=S.data[today()][S.cur], tgt=S.targets[S.cur]||33;
+  if(S.settings.milestone){
+    if(cnt===tgt) showToast('🎉 '+t('todayGrand')+' مَاشَاءَ اللّٰه');
+    else if(cnt%100===0) showToast('✨ '+cnt+' — بَارَكَ اللّٰه');
+    else if(cnt===33||cnt===99) showToast('⭐ '+cnt+' ذِكر');
+  }
+  saveData(); renderCounter();
+}
+function undo(){
+  if(!S.undo.length) return;
+  const l=S.undo.pop();
+  if(S.data[l.date]&&S.data[l.date][l.id]>0) S.data[l.date][l.id]--;
+  saveData(); renderCounter();
+}
+function resetToday(){
+  const d=getDhikr(S.cur);
+  if(!confirm('Reset '+d.en+'?')) return;
+  S.data[today()][S.cur]=0; S.undo=[];
+  saveData(); renderCounter();
+}
+function saveTarget(){
+  S.targets[S.cur]=parseInt(document.getElementById('tgt-inp').value)||33;
+  saveTargets(); renderCounter();
+}
+function ensureToday(){
+  const t=today();
+  if(!S.data[t]) S.data[t]={};
+  DHIKRS.forEach(d=>{ if(!(d.id in S.data[t])) S.data[t][d.id]=0; });
+  return t;
+}
+
+/* ══════════════════════════════════
+   NAVIGATION
+══════════════════════════════════ */
+function showPage(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='history') renderHistory();
+  if(id==='stats') renderStats();
+  if(id==='profile') renderProfile();
+}
+function showSub(id, btn){
+  btn.closest('.page').querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  btn.closest('.page').querySelectorAll('.sub-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ══════════════════════════════════
+   RENDER — COUNTER
+══════════════════════════════════ */
+function renderCarousel(){
+  document.getElementById('carousel').innerHTML=DHIKRS.map(d=>`
+    <button class="c-pill${d.id===S.cur?' active':''}" data-id="${d.id}"
+      style="--cc:${d.color}" onclick="selectDhikr('${d.id}')">
+      <span class="p-ar">${d.ar}</span>
+      <span class="p-en">${d.en}</span>
+    </button>`).join('');
+}
+function selectDhikr(id){
+  S.cur=id; S.undo=[];
+  document.querySelectorAll('.c-pill').forEach(p=>p.classList.remove('active'));
+  const pill=document.querySelector(`.c-pill[data-id="${id}"]`);
+  if(pill){ pill.classList.add('active'); pill.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}); }
+  document.getElementById('tgt-inp').value=S.targets[id]||33;
+  renderCounter();
+}
+function renderCounter(){
+  const d=getDhikr(S.cur), t0=today();
+  const cnt=getCount(t0,S.cur), tgt=S.targets[S.cur]||33;
+  const pct=Math.min(100,Math.round(cnt/tgt*100));
+  const card=document.getElementById('ctr-card');
+  card.style.setProperty('--cc',d.color);
+  document.getElementById('tap-btn').style.borderColor=d.color;
+  document.getElementById('ctr-ar').textContent=d.ar;
+  document.getElementById('ctr-ar').style.color=d.color;
+  document.getElementById('ctr-en').textContent=d.meaning.toUpperCase();
+  document.getElementById('big-num').textContent=cnt;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-fill').style.background=d.color;
+  // Today summary (first 3)
+  const sg=document.getElementById('today-grid');
+  sg.innerHTML=DHIKRS.slice(0,3).map(x=>`
+    <div class="ts-box">
+      <div class="ts-ar" style="color:${x.color}">${x.ar}</div>
+      <div class="ts-num" style="color:${x.color}">${getCount(t0,x.id)}</div>
+      <div class="ts-lbl">${x.en}</div>
+    </div>`).join('');
+  const grand=DHIKRS.reduce((s,x)=>s+getCount(t0,x.id),0);
+  document.getElementById('today-grand').textContent=grand;
+}
+
+/* ══════════════════════════════════
+   RENDER — HISTORY
+══════════════════════════════════ */
+function renderHistory(){ renderDateHist(); renderCatHist(); }
+function fmtDate(ds){
+  const [y,m,dy]=ds.split('-'), dt=new Date(ds);
+  return {short:`${dy} ${MONTHS[m-1]}`,day:DAYS_SH[dt.getDay()],year:y};
+}
+function renderDateHist(){
+  const dates=allDates();
+  document.getElementById('col-h1').textContent=DHIKRS[0].en.slice(0,5);
+  document.getElementById('col-h2').textContent=DHIKRS[1].en.slice(0,5);
+  document.getElementById('col-h3').textContent=DHIKRS[2].en.slice(0,5);
+  const tbody=document.getElementById('hist-date-body');
+  if(!dates.length){ tbody.innerHTML=`<tr><td colspan="6" class="empty">NO RECORDS YET</td></tr>`; return; }
+  const tod=today();
+  tbody.innerHTML=dates.map(date=>{
+    const row=S.data[date]||{}; const {short,day}=fmtDate(date);
+    const more=DHIKRS.slice(3).reduce((s,d)=>s+(row[d.id]||0),0);
+    const total=DHIKRS.reduce((s,d)=>s+(row[d.id]||0),0);
+    return `<tr>
+      <td class="tbl-date">${short}${date===tod?'<span style="color:var(--gold)"> ●</span>':''}<span class="tbl-day">${day}</span></td>
+      <td style="color:${DHIKRS[0].color}">${row[DHIKRS[0].id]||0}</td>
+      <td style="color:${DHIKRS[1].color}">${row[DHIKRS[1].id]||0}</td>
+      <td style="color:${DHIKRS[2].color}">${row[DHIKRS[2].id]||0}</td>
+      <td style="color:var(--txt2)">${more||'—'}</td>
+      <td class="tbl-tot">${total}</td>
+    </tr>`;
+  }).join('');
+}
+function renderCatHist(){
+  const btns=document.getElementById('cat-sel-btns');
+  btns.innerHTML=DHIKRS.map(d=>`
+    <button class="pill-btn${S.selCat===d.id?' sel':''}"
+      style="${S.selCat===d.id?`border-color:${d.color};color:${d.color};background:color-mix(in srgb,${d.color} 12%,var(--card))`:''}"
+      onclick="pickCatHist('${d.id}')">${d.en}</button>`).join('');
+  const dates=allDates(); const tbody=document.getElementById('cat-hist-body');
+  if(!dates.length){ tbody.innerHTML=`<tr><td colspan="3" class="empty">NO RECORDS YET</td></tr>`; return; }
+  const col=getDhikr(S.selCat).color;
+  let run=0; const asc=[...dates].reverse();
+  const rows=asc.map(date=>{ const c=getCount(date,S.selCat); run+=c; return {date,c,run}; }).reverse();
+  const tod=today();
+  tbody.innerHTML=rows.map(r=>{
+    const {short,day}=fmtDate(r.date);
+    return `<tr>
+      <td class="tbl-date">${short}${r.date===tod?'<span style="color:var(--gold)"> ●</span>':''}<span class="tbl-day">${day}</span></td>
+      <td style="color:${col};font-family:var(--ffc)">${r.c}</td>
+      <td style="color:var(--txt2);font-size:.7rem">${r.run}</td>
+    </tr>`;
+  }).join('');
+}
+function pickCatHist(id){ S.selCat=id; renderCatHist(); }
+
+/* ══════════════════════════════════
+   RENDER — STATS
+══════════════════════════════════ */
+function renderStats(){
+  renderStatBlock('st-all-list','st-all-tot',getAllTotals());
+  renderStatBlock('st-today-list','st-today-tot',getTodayTotals());
+  renderStatBlock('st-week-list','st-week-tot',getWeekTotals());
+}
+function getAllTotals(){
+  const tot={}; DHIKRS.forEach(d=>tot[d.id]=0);
+  Object.values(S.data).forEach(row=>DHIKRS.forEach(d=>{ tot[d.id]+=(row[d.id]||0); }));
+  return tot;
+}
+function getTodayTotals(){
+  const t0=today(), tot={}; DHIKRS.forEach(d=>tot[d.id]=getCount(t0,d.id)); return tot;
+}
+function getWeekTotals(){
+  const tot={}; DHIKRS.forEach(d=>tot[d.id]=0);
+  const now=new Date();
+  for(let i=0;i<7;i++){ const dt=new Date(now); dt.setDate(now.getDate()-i); const k=dt.toISOString().split('T')[0]; if(S.data[k]) DHIKRS.forEach(d=>{tot[d.id]+=(S.data[k][d.id]||0);}); }
+  return tot;
+}
+function renderStatBlock(listId,totId,totals){
+  const grand=DHIKRS.reduce((s,d)=>s+(totals[d.id]||0),0);
+  document.getElementById(totId).textContent=grand;
+  document.getElementById(listId).innerHTML=DHIKRS.map(d=>{
+    const cnt=totals[d.id]||0, pct=grand>0?Math.round(cnt/grand*100):0;
+    return `<div class="csi">
+      <div class="csi-dot" style="background:${d.color}"></div>
+      <div class="csi-info">
+        <div class="csi-ar">${d.ar}</div>
+        <div class="csi-en">${d.en}</div>
+        <div class="csi-bw"><div class="csi-bf" style="width:${pct}%;background:${d.color}"></div></div>
+      </div>
+      <div class="csi-right">
+        <div class="csi-num" style="color:${d.color}">${cnt}</div>
+        <div class="csi-pct">${pct}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════
+   RENDER — PROFILE
+══════════════════════════════════ */
+function renderProfile(){
+  document.getElementById('profile-avatar').textContent=S.profile.avatar||'🤲';
+  document.getElementById('disp-name').textContent=S.profile.name||'My Profile';
+  document.getElementById('disp-location').textContent=S.profile.location?'📍 '+S.profile.location:'📍 Add your location';
+  document.getElementById('inp-name').value=S.profile.name||'';
+  document.getElementById('inp-location').value=S.profile.location||'';
+  document.getElementById('inp-goal').value=S.profile.goal||100;
+  // Badges
+  const tot=DHIKRS.reduce((s,d)=>{ Object.values(S.data).forEach(r=>s+=r[d.id]||0); return s; },0);
+  document.getElementById('badge-total').textContent=tot;
+  document.getElementById('badge-days').textContent=Object.keys(S.data).length;
+  document.getElementById('badge-streak').textContent=calcStreak();
+}
+function calcStreak(){
+  let s=0, d=new Date();
+  while(true){ const k=d.toISOString().split('T')[0]; const r=S.data[k]; if(!r||DHIKRS.reduce((x,dz)=>x+(r[dz.id]||0),0)===0) break; s++; d.setDate(d.getDate()-1); }
+  return s;
+}
+function saveProfile(){
+  S.profile.name=document.getElementById('inp-name').value;
+  S.profile.location=document.getElementById('inp-location').value;
+  S.profile.goal=parseInt(document.getElementById('inp-goal').value)||100;
+  localStorage.setItem('dz3_profile',JSON.stringify(S.profile));
+  renderProfile(); showToast('✅ Profile saved');
+}
+const AVATARS=['🤲','👤','🧕','👳','☪️','🌙','⭐','🌿'];
+let aidx=0;
+function changeAvatar(){ aidx=(aidx+1)%AVATARS.length; S.profile.avatar=AVATARS[aidx]; document.getElementById('profile-avatar').textContent=AVATARS[aidx]; localStorage.setItem('dz3_profile',JSON.stringify(S.profile)); }
+
+/* ══════════════════════════════════
+   SETTINGS
+══════════════════════════════════ */
+function setTheme(th, el){
+  S.theme=th; document.body.setAttribute('data-theme',th);
+  document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.remove('sel'));
+  el.classList.add('sel');
+  localStorage.setItem('dz3_theme',th);
+}
+function setLang(lang, el){
+  S.lang=lang;
+  document.querySelectorAll('.lang-item').forEach(i=>i.classList.remove('sel'));
+  el.classList.add('sel');
+  localStorage.setItem('dz3_lang',lang);
+  applyTranslations();
+  showToast('🌐 Language changed');
+}
+function saveSettings(){
+  S.settings.vibration=document.getElementById('tog-vib').classList.contains('on');
+  S.settings.sound=document.getElementById('tog-sound').classList.contains('on');
+  S.settings.keepOn=document.getElementById('tog-screen').classList.contains('on');
+  S.settings.milestone=document.getElementById('tog-milestone').classList.contains('on');
+  localStorage.setItem('dz3_settings',JSON.stringify(S.settings));
+}
+function applySettings(){
+  if(S.settings.vibration) document.getElementById('tog-vib').classList.add('on'); else document.getElementById('tog-vib').classList.remove('on');
+  if(S.settings.sound) document.getElementById('tog-sound').classList.add('on'); else document.getElementById('tog-sound').classList.remove('on');
+  if(S.settings.keepOn) document.getElementById('tog-screen').classList.add('on'); else document.getElementById('tog-screen').classList.remove('on');
+  if(S.settings.milestone) document.getElementById('tog-milestone').classList.add('on'); else document.getElementById('tog-milestone').classList.remove('on');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify({data:S.data,targets:S.targets,profile:S.profile},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='dhikr_data.json'; a.click();
+}
+function clearAllData(){
+  if(!confirm('Delete ALL data permanently?')) return;
+  S.data={}; saveData(); renderCounter(); showToast('🗑 Data cleared');
+}
+
+/* ══════════════════════════════════
+   TRANSLATIONS APPLY
+══════════════════════════════════ */
+function applyTranslations(){
+  const map={
+    'tab-lbl-counter':'counter','tab-lbl-history':'history','tab-lbl-stats':'stats',
+    'tab-lbl-profile':'profile','tab-lbl-settings':'settings',
+    'cnt-sub-lbl':'todayCount','tgt-lbl-txt':'dailyTarget','tap-lbl-txt':'tap',
+    'btn-undo':'undo','btn-reset':'reset','sec-today-sum':'todaySummary','lbl-today-grand':'todayGrand',
+    'tab-hist-date':'dateWise','tab-hist-cat':'category',
+    'tab-st-all':'allTime','tab-st-today':'today','tab-st-week':'thisWeek',
+    'lbl-cat-bk':'catBreakdown','lbl-alltime':'allTimeGrand',
+    'lbl-td-bk':'todayBreakdown','lbl-td-gt':'todayGrand2',
+    'lbl-wk-bk':'weekBreakdown','lbl-wk-gt':'weekGrand',
+    'lbl-profile-info':'profileInfo','lbl-name':'name','lbl-location':'location',
+    'lbl-goal':'dailyGoal','btn-save-profile':'saveProfile',
+    'lbl-b-total':'totalDhikr','lbl-b-days':'daysActive','lbl-b-streak':'currentStreak',
+    'lbl-daily-rec':'dailyRecords','lbl-cat-hist':'catHistory',
+    'th-date':'date','th-date2':'date','th-more':'more','th-total':'total','th-count':'count','th-running':'running',
+    'lbl-theme':'theme','lbl-language':'language','lbl-general':'general','lbl-data':'data',
+    'sr-vibration':'vibration','sr-vibration-sub':'haptic','sr-sound':'sound','sr-sound-sub':'clickSound',
+    'sr-keepon':'keepOn','sr-keepon-sub':'preventSleep',
+    'sr-milestone':'milestones','sr-milestone-sub':'milestonesSub',
+    'sr-export':'export','sr-export-sub':'exportSub','sr-clear':'clearData','sr-clear-sub':'clearSub',
+    'sw-dark':'dark','sw-light':'light','sw-ocean':'ocean','sw-emerald':'emerald','sw-rose':'rose',
+  };
+  Object.entries(map).forEach(([id,key])=>{
+    const el=document.getElementById(id); if(el) el.textContent=t(key);
+  });
+  // RTL for Arabic/Urdu
+  document.body.style.direction=(S.lang==='ar'||S.lang==='ur')?'rtl':'ltr';
+}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+let toastTmr;
+function showToast(msg){
+  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTmr); toastTmr=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+function init(){
+  load(); ensureToday();
+  document.body.setAttribute('data-theme',S.theme);
+  // Set active theme swatch
+  document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.remove('sel'));
+  const sw=document.querySelector(`.theme-swatch[data-theme="${S.theme}"]`);
+  if(sw) sw.classList.add('sel');
+  // Set active language
+  document.querySelectorAll('.lang-item').forEach(i=>i.classList.remove('sel'));
+  const li=document.querySelector(`.lang-item[data-lang="${S.lang}"]`);
+  if(li) li.classList.add('sel');
+  // Date
+  const now=new Date();
+  document.getElementById('hdr-date').textContent=`${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+  document.getElementById('hdr-day').textContent=DAYS_FULL[now.getDay()];
+  applySettings();
+  applyTranslations();
+  renderCarousel();
+  renderCounter();
+}
+init();
+</script>
+</body>
+</html>
