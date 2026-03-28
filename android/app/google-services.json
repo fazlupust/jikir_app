@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "591424614224",
+    "project_id": "jikir-app",
+    "storage_bucket": "jikir-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591424614224:android:127bb5f9e60fd595294655",
+        "android_client_info": {
+          "package_name": "com.jikir.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUqtSPHU09zh_Rkaa5AQ6-Tg4Kct6ZyII"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
