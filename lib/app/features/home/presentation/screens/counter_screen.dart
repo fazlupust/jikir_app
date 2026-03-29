@@ -22,9 +22,9 @@ class CounterScreen extends GetView<HomeController> {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           children: [
             // 1. Carousel
-            Text("selectDhikr".tr.toUpperCase(),
-              style: TextStyle(fontSize: 10, letterSpacing: 3, color: appColors.txt3)),
-            const SizedBox(height: 8),
+            // Text("selectDhikr".tr.toUpperCase(),
+            //   style: TextStyle(fontSize: 10, letterSpacing: 3, color: appColors.txt3)),
+            // const SizedBox(height: 5),
             SizedBox(
               height: 60,
               child: ListView.builder(
@@ -38,7 +38,7 @@ class CounterScreen extends GetView<HomeController> {
                     onTap: () => controller.changeDhikrCategory(item.id),
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                       decoration: BoxDecoration(
                         color: isActive ? Color.alphaBlend(item.color.withOpacity(0.12), appColors.card) : appColors.card,
                         border: Border.all(color: isActive ? item.color : appColors.bdr, width: 1.5),
@@ -47,7 +47,7 @@ class CounterScreen extends GetView<HomeController> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(item.ar, style: context.arabicText.copyWith(color: isActive ? item.color : appColors.txt2, fontSize: 16)),
+                          Text(item.ar, style: context.arabicText.copyWith(color: isActive ? item.color : appColors.white, fontSize: 20)),
                           Text(item.bn, style: TextStyle(fontSize: 9, color: isActive ? item.color.withOpacity(0.8) : appColors.txt)),
                         ],
                       ),
@@ -56,7 +56,7 @@ class CounterScreen extends GetView<HomeController> {
                 },
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 5),
 
             // 2. Main Counter Card
             Container(
@@ -69,24 +69,24 @@ class CounterScreen extends GetView<HomeController> {
               ),
               child: Column(
                 children: [
-                  Text(curItem.ar, textAlign: TextAlign.center, style: context.arabicText.copyWith(fontSize: 34, color: curItem.color)),
+                  Text(curItem.ar, textAlign: TextAlign.center, style: context.arabicText.copyWith(fontSize: 50, color: curItem.color)),
                   const SizedBox(height: 4),
-                  Text(curItem.bn, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: appColors.txt, fontWeight: FontWeight.bold)),
+                  Text(curItem.meaning, textAlign: TextAlign.center, style: TextStyle(fontSize: 20, color: appColors.txt, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(curItem.meaning, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: appColors.txt3, fontStyle: FontStyle.italic)),
-                  const SizedBox(height: 18),
+                  // Text(curItem.meaning, textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: appColors.txt, fontStyle: FontStyle.italic)),
+                  // const SizedBox(height: 18),
                   
                   // Big Number
                   Text('${controller.currentCount.value}',
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 80, height: 1.0, color: appColors.txt)
                   ),
-                  Text("todayCount".tr.toUpperCase(), style: TextStyle(fontSize: 10, letterSpacing: 3, color: appColors.txt3)),
-                  const SizedBox(height: 20),
+                  // Text("todayCount".tr.toUpperCase(), style: TextStyle(fontSize: 10, letterSpacing: 3, color: appColors.txt3)),
+                  // const SizedBox(height: 20),
 
                   // Target Row
                   Row(
                     children: [
-                      Text("dailyTarget".tr.toUpperCase(), style: TextStyle(fontSize: 10, letterSpacing: 1, color: appColors.txt2)),
+                      Text("dailyTarget".tr.toUpperCase(), style: TextStyle(fontSize: 10, letterSpacing: 1, color: appColors.white)),
                       const Spacer(),
                       SizedBox(
                         width: 64, height: 28,
@@ -109,7 +109,7 @@ class CounterScreen extends GetView<HomeController> {
                       )
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 2),
 
                   // Progress Bar
                   Container(
@@ -130,7 +130,7 @@ class CounterScreen extends GetView<HomeController> {
                   GestureDetector(
                     onTap: () => controller.increment(),
                     child: Container(
-                      width: 96, height: 96,
+                      width: 150, height: 150,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(color: curItem.color, width: 2),
@@ -144,7 +144,7 @@ class CounterScreen extends GetView<HomeController> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.touch_app, color: curItem.color, size: 32),
+                          Icon(Icons.touch_app, color: curItem.color, size: 42),
                           Text("tap".tr.toUpperCase(), style: TextStyle(fontSize: 10, letterSpacing: 2, color: appColors.txt2)),
                         ],
                       ),
@@ -158,7 +158,7 @@ class CounterScreen extends GetView<HomeController> {
                     children: [
                       OutlinedButton.icon(
                         icon: const Icon(Icons.undo, size: 14),
-                        label: Text('undo'.tr),
+                        label: Text('undo'.tr,style: const TextStyle(color: Colors.white)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: appColors.txt2, side: BorderSide(color: appColors.bdr2),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -182,13 +182,13 @@ class CounterScreen extends GetView<HomeController> {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // 3. Today Summary
-            Text("todaySummary".tr.toUpperCase(),
-              style: TextStyle(fontSize: 10, letterSpacing: 3, color: appColors.txt3)),
-            const SizedBox(height: 8),
-            
+            // Text("todaySummary".tr.toUpperCase(),
+            //   style: TextStyle(fontSize: 10, letterSpacing: 3, color: appColors.txt3)),
+            // const SizedBox(height: 8),
+            //
             // Grand Total
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -200,7 +200,7 @@ class CounterScreen extends GetView<HomeController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("todayGrand".tr.toUpperCase(), style: TextStyle(fontSize: 11, letterSpacing: 2, color: appColors.txt2)),
+                  Text("today Grand".tr.toUpperCase(), style: TextStyle(fontSize: 11, letterSpacing: 2, color: appColors.white)),
                   Text('${controller.todayGrandTotal.value}', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 30, color: appColors.gold, fontWeight: FontWeight.bold)),
                 ],
               ),

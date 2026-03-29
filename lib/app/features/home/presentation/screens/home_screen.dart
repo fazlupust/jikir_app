@@ -75,32 +75,32 @@ class HomeScreen extends GetView<HomeController> {
             type: BottomNavigationBarType.fixed,
             backgroundColor: appColors.surf,
             selectedItemColor: appColors.gold,
-            unselectedItemColor: appColors.txt3,
-            selectedFontSize: 10,
-            unselectedFontSize: 10,
+            unselectedItemColor: appColors.white,
+            selectedFontSize: 13,
+            unselectedFontSize: 13,
             items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.touch_app_outlined), // Simplified for now, need custom or appropriate icons
+                icon: Icon(Icons.touch_app_outlined,color: Colors.white), // Simplified for now, need custom or appropriate icons
                 activeIcon: _activeIcon(Icons.touch_app_outlined, appColors.gold),
                 label: 'counter'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.calendar_today_outlined),
+                icon: Icon(Icons.calendar_today_outlined,color: Colors.white),
                 activeIcon: _activeIcon(Icons.calendar_today_outlined, appColors.gold),
                 label: 'history'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.bar_chart_outlined),
+                icon: Icon(Icons.bar_chart_outlined,color: Colors.white),
                 activeIcon: _activeIcon(Icons.bar_chart_outlined, appColors.gold),
                 label: 'stats'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
+                icon: Icon(Icons.person_outline,color: Colors.white),
                 activeIcon: _activeIcon(Icons.person_outline, appColors.gold),
                 label: 'profile'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.settings_outlined),
+                icon: Icon(Icons.settings_outlined,color: Colors.white),
                 activeIcon: _activeIcon(Icons.settings_outlined, appColors.gold),
                 label: 'settings'.tr,
               ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Theme colors storage
   final Color bg;
   final Color surf;
   final Color card;
@@ -14,8 +13,12 @@ class AppColors {
   final Color txt;
   final Color txt2;
   final Color txt3;
+  final Color txt4;
   final Color accent;
-  
+  // White colors added here
+  final Color white;
+  final Color white2;
+
   const AppColors({
     required this.bg,
     required this.surf,
@@ -29,7 +32,10 @@ class AppColors {
     required this.txt,
     required this.txt2,
     required this.txt3,
+    required this.txt4,
     required this.accent,
+    required this.white,
+    required this.white2,
   });
 
   static const darkTheme = AppColors(
@@ -45,7 +51,10 @@ class AppColors {
     txt: Color(0xFFddd5c0),
     txt2: Color(0xFF8892a4),
     txt3: Color(0xFF3d4558),
+    txt4: Color(0xFFFFFFFF),
     accent: Color(0xFFd4a843),
+    white: Color(0xFFFFFFFF),
+    white2: Color(0xFFF5F5F5),
   );
 
   static const lightTheme = AppColors(
@@ -55,13 +64,16 @@ class AppColors {
     card2: Color(0xFFf5eedb),
     bdr: Color(0xFFd6cdb8),
     bdr2: Color(0xFFc8bfa8),
-    gold: Color(0xFFd4a843), // inherited from dark
-    goldL: Color(0xFFf0c96a), // inherited from dark
-    goldD: Color(0xFF7a5e20), // inherited from dark
+    gold: Color(0xFFd4a843),
+    goldL: Color(0xFFf0c96a),
+    goldD: Color(0xFF7a5e20),
     txt: Color(0xFF2a2318),
     txt2: Color(0xFF6b5e48),
     txt3: Color(0xFFa89880),
+    txt4: Color(0xFF1A1A1A), // Added missing txt4 for light
     accent: Color(0xFFd4a843),
+    white: Color(0xFFFFFFFF),
+    white2: Color(0xFFFAFAFA),
   );
 
   static const oceanTheme = AppColors(
@@ -77,7 +89,10 @@ class AppColors {
     txt: Color(0xFFcce6f8),
     txt2: Color(0xFF6b9ab8),
     txt3: Color(0xFF2a4a60),
+    txt4: Color(0xFFE0F2FE), // Added missing txt4
     accent: Color(0xFF38bdf8),
+    white: Color(0xFFFFFFFF),
+    white2: Color(0xFFEBF8FF),
   );
 
   static const emeraldTheme = AppColors(
@@ -93,7 +108,10 @@ class AppColors {
     txt: Color(0xFFc6f0d8),
     txt2: Color(0xFF5a9472),
     txt3: Color(0xFF234d35),
+    txt4: Color(0xFFDCFCE7), // Added missing txt4
     accent: Color(0xFF4ade80),
+    white: Color(0xFFFFFFFF),
+    white2: Color(0xFFF0FDF4),
   );
 
   static const roseTheme = AppColors(
@@ -109,7 +127,10 @@ class AppColors {
     txt: Color(0xFFfce7f0),
     txt2: Color(0xFFb06070),
     txt3: Color(0xFF5a2535),
+    txt4: Color(0xFFFFF1F2), // Added missing txt4
     accent: Color(0xFFfb7185),
+    white: Color(0xFFFFFFFF),
+    white2: Color(0xFFFFF5F7),
   );
 
   static AppColors getColors(String themeName) {

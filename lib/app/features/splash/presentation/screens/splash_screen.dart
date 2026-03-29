@@ -40,7 +40,7 @@ class SplashScreen extends GetView<SplashController> {
                     SizedBox(height: 16.h),
                     Obx(() => Text(
                       controller.appVersion.value.isEmpty ? "Loading..." : controller.appVersion.value,
-                      style: TextStyle(color: Colors.white24, fontSize: 12.sp, letterSpacing: 2),
+                      style: TextStyle(color: Colors.white, fontSize: 15.sp, letterSpacing: 2),
                     )),
                   ],
                 ),
