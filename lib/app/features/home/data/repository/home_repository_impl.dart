@@ -97,11 +97,15 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<Map<String, int>> getAllTimeStats() async {
     Map<String, int> stats = {};
     for (var key in _box.keys) {
-      if (key.toString().startsWith("dhikr_")) {
+      String k = key.toString();
+      // Only process keys matching dhikr_YYYY-MM-DD... to avoid dhikr_targets
+      if (k.startsWith("dhikr_") && k != "dhikr_targets") {
         final data = _box.get(key);
-        if (data != null) {
-          String catId = data['categoryId'];
-          stats[catId] = (stats[catId] ?? 0) + (data['count'] as num).toInt();
+        if (data != null && data is Map) {
+          String? catId = data['categoryId'] as String?;
+          if (catId != null) {
+            stats[catId] = (stats[catId] ?? 0) + (data['count'] ?? 0) as int;
+          }
         }
       }
     }
@@ -172,7 +176,10 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<void> clearAllData() async {
-    final keysToDelete = _box.keys.where((k) => k.toString().startsWith("dhikr_")).toList();
+    final keysToDelete = _box.keys.where((k) {
+      String keyStr = k.toString();
+      return keyStr.startsWith("dhikr_") && keyStr != "dhikr_targets";
+    }).toList();
     for (var key in keysToDelete) {
       await _box.delete(key);
     }

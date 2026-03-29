@@ -192,24 +192,30 @@ class AuthScreen extends GetView<AuthController> {
     Widget? suffixIcon,
     TextInputType? keyboardType,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.card2, width: 1),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        style: TextStyle(color: AppColors.textMain, fontSize: 15.sp),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
-          prefixIcon: Icon(icon, color: AppColors.gold, size: 20.sp),
-          suffixIcon: suffixIcon,
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 18.h),
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      style: TextStyle(color: AppColors.textMain, fontSize: 15.sp),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14.sp),
+        prefixIcon: Icon(icon, color: AppColors.gold, size: 20.sp),
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: AppColors.card,
+        contentPadding: EdgeInsets.symmetric(vertical: 18.h),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r), 
+          borderSide: const BorderSide(color: Colors.white24, width: 1.5)
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r), 
+          borderSide: const BorderSide(color: Colors.white24, width: 1.5)
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.r), 
+          borderSide: const BorderSide(color: AppColors.gold, width: 2)
         ),
       ),
     );

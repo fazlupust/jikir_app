@@ -133,13 +133,13 @@ class _Badge extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.card,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.bdr),
+        border: Border.all(color: colors.txt2),
       ),
       child: Column(
         children: [
-          Text(value, style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 22, color: colors.gold)),
+          Text(value, style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 22, color: colors.white)),
           const SizedBox(height: 4),
-          Text(label.toUpperCase(), style: TextStyle(fontSize: 9, letterSpacing: 1, color: colors.txt3)),
+          Text(label.toUpperCase(), style: TextStyle(fontSize: 9, letterSpacing: 1, color: colors.white)),
         ],
       ),
     );

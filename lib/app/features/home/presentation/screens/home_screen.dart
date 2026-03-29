@@ -82,27 +82,27 @@ class HomeScreen extends GetView<HomeController> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.touch_app_outlined,color: Colors.white), // Simplified for now, need custom or appropriate icons
                 activeIcon: _activeIcon(Icons.touch_app_outlined, appColors.gold),
-                label: 'counter'.tr,
+                label: 'Counter'.tr,
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.calendar_today_outlined,color: Colors.white),
                 activeIcon: _activeIcon(Icons.calendar_today_outlined, appColors.gold),
-                label: 'history'.tr,
+                label: 'History'.tr,
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.bar_chart_outlined,color: Colors.white),
                 activeIcon: _activeIcon(Icons.bar_chart_outlined, appColors.gold),
-                label: 'stats'.tr,
+                label: 'Stats'.tr,
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline,color: Colors.white),
                 activeIcon: _activeIcon(Icons.person_outline, appColors.gold),
-                label: 'profile'.tr,
+                label: 'Profile'.tr,
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings_outlined,color: Colors.white),
                 activeIcon: _activeIcon(Icons.settings_outlined, appColors.gold),
-                label: 'settings'.tr,
+                label: 'Settings'.tr,
               ),
             ],
           ),

@@ -107,10 +107,15 @@ class HomeController extends GetxController {
 
   Future<void> _loadTodaysCount() async {
     todayGrandTotal.value = 0;
+    // Load total count for this category today
     var stats = await repository.getStatsForDate(today);
     todayStats.assignAll(stats);
     
+    // Determine the current session count. If the user wants the counter 
+    // to reset independently, we load the total as the initial counter amount,
+    // but when they reset, only currentCount will be 0.
     currentCount.value = stats[currentCat.value] ?? 0;
+    
     stats.forEach((key, value) {
       todayGrandTotal.value += value;
     });
@@ -139,7 +144,9 @@ class HomeController extends GetxController {
   Future<void> increment() async {
     currentCount.value++;
     todayGrandTotal.value++;
-    todayStats[currentCat.value] = currentCount.value;
+    
+    // Accumulate the daily stat instead of setting it to currentCount
+    todayStats[currentCat.value] = (todayStats[currentCat.value] ?? 0) + 1;
 
     undoStack.add(UndoAction(today, currentCat.value));
 
@@ -152,12 +159,12 @@ class HomeController extends GetxController {
     if (settings.value.milestoneAlerts) {
       if (currentCount.value == target) {
         Get.snackbar('🎉 Mashallah', 'Target Reached!', snackPosition: SnackPosition.BOTTOM);
-      } else if (currentCount.value % 100 == 0) {
+      } else if (currentCount.value > 0 && currentCount.value % 100 == 0) {
         Get.snackbar('✨ Barakallah', '${currentCount.value} Reached!', snackPosition: SnackPosition.BOTTOM);
       }
     }
 
-    _persistCurrentCount();
+    _persistDbCount(currentCat.value);
   }
 
   Future<void> undo() async {
@@ -165,11 +172,13 @@ class HomeController extends GetxController {
     
     final action = undoStack.removeLast();
     if (action.date == today && action.categoryId == currentCat.value) {
-      if (currentCount.value > 0) {
-        currentCount.value--;
+      if (currentCount.value > 0) currentCount.value--;
+      
+      int countForCat = todayStats[currentCat.value] ?? 0;
+      if (countForCat > 0) {
+        todayStats[currentCat.value] = countForCat - 1;
         todayGrandTotal.value--;
-        todayStats[currentCat.value] = currentCount.value;
-        _persistCurrentCount();
+        _persistDbCount(currentCat.value);
       }
     } else {
       // Undo a previous category on the same day
@@ -177,43 +186,27 @@ class HomeController extends GetxController {
       if (countForCat > 0) {
         todayStats[action.categoryId] = countForCat - 1;
         todayGrandTotal.value--;
-        
-        // Persist it explicitly
-        int finalCount = todayStats[action.categoryId] ?? 0;
-        final dItem = DhikrConstants.get(action.categoryId);
-        final uid = repository.getCurrentUserId();
-        await repository.saveDhikr(DhikrEntity(
-          categoryId: dItem.id,
-          categoryName: dItem.en,
-          userId: uid,
-          date: today,
-          count: finalCount,
-          lastUpdated: DateTime.now()
-        ));
+        _persistDbCount(action.categoryId);
       }
     }
   }
 
   Future<void> resetToday() async {
+    // Only reset the visual counter
     currentCount.value = 0;
-    todayStats[currentCat.value] = 0;
-    // Calculate new grand total
-    todayGrandTotal.value = 0;
-    todayStats.forEach((_, val) => todayGrandTotal.value += val);
-    
-    undoStack.removeWhere((e) => e.date == today && e.categoryId == currentCat.value);
-    _persistCurrentCount();
   }
 
-  void _persistCurrentCount() {
-    final dItem = DhikrConstants.get(currentCat.value);
+  void _persistDbCount(String categoryId) {
+    int finalCount = todayStats[categoryId] ?? 0;
+    final dItem = DhikrConstants.get(categoryId);
     final uid = repository.getCurrentUserId();
+    
     final entity = DhikrEntity(
       categoryId: dItem.id,
       categoryName: dItem.en,
       userId: uid,
       date: today,
-      count: currentCount.value,
+      count: finalCount,
       lastUpdated: DateTime.now(),
     );
     repository.saveDhikr(entity);
