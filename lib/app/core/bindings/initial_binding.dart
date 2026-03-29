@@ -5,7 +5,6 @@ import '../../features/auth/presentation/controller/auth_controller.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(DatabaseService());
-    Get.put(AuthController(), permanent: true);
+    Get.put(AuthController(Get.find()), permanent: true);
   }
 }

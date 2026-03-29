@@ -17,7 +17,7 @@ class AuthScreen extends GetView<AuthController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 80.h),
+              SizedBox(height: 60.h),
               // Logo/Icon
               Text(
                 "ذِكر",
@@ -35,13 +35,28 @@ class AuthScreen extends GetView<AuthController> {
                   style: TextStyle(color: AppColors.textMain, fontSize: 18.sp),
                 ),
               ),
-              SizedBox(height: 50.h),
+              SizedBox(height: 40.h),
 
-              // Email Field
+              // Full Name Field (Only for Signup)
+              Obx(() => controller.isLogin.value
+                  ? const SizedBox.shrink()
+                  : Column(
+                      children: [
+                        _buildTextField(
+                          hint: "Full Name",
+                          controller: controller.fullNameController,
+                          icon: Icons.person_outline,
+                        ),
+                        SizedBox(height: 16.h),
+                      ],
+                    )),
+
+              // Phone Field
               _buildTextField(
-                hint: "Email Address",
-                controller: controller.emailController,
-                icon: Icons.email_outlined,
+                hint: "Phone Number",
+                controller: controller.phoneController,
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
               ),
               SizedBox(height: 16.h),
 
@@ -94,6 +109,43 @@ class AuthScreen extends GetView<AuthController> {
               ),
 
               SizedBox(height: 20.h),
+              
+              Row(
+                children: [
+                  Expanded(child: Divider(color: AppColors.card2)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    child: Text("OR", style: TextStyle(color: AppColors.textSecondary, fontSize: 12.sp)),
+                  ),
+                  Expanded(child: Divider(color: AppColors.card2)),
+                ],
+              ),
+              
+              SizedBox(height: 20.h),
+
+              // Google Login Button
+              Obx(
+                () => controller.isLoading.value
+                    ? const SizedBox.shrink()
+                    : OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.textMain,
+                          side: BorderSide(color: AppColors.card2),
+                          minimumSize: Size(double.infinity, 54.h),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                        ),
+                        onPressed: controller.loginWithGoogle,
+                        icon: Icon(Icons.eighteen_mp),
+                        label: Text(
+                          "Continue with Google",
+                          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+              ),
+
+              SizedBox(height: 20.h),
 
               // Toggle Auth Mode
               TextButton(
@@ -123,6 +175,7 @@ class AuthScreen extends GetView<AuthController> {
                   ),
                 ),
               ),
+              SizedBox(height: 20.h),
             ],
           ),
         ),
@@ -137,6 +190,7 @@ class AuthScreen extends GetView<AuthController> {
     bool isPassword = false,
     bool obscureText = false,
     Widget? suffixIcon,
+    TextInputType? keyboardType,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -147,6 +201,7 @@ class AuthScreen extends GetView<AuthController> {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
+        keyboardType: keyboardType,
         style: TextStyle(color: AppColors.textMain, fontSize: 15.sp),
         decoration: InputDecoration(
           hintText: hint,
@@ -160,3 +215,4 @@ class AuthScreen extends GetView<AuthController> {
     );
   }
 }
+

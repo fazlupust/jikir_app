@@ -43,6 +43,10 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   intl: ^0.20.2
+  google_fonts: ^6.2.1
+  wakelock_plus: ^1.2.8
+  google_sign_in: ^6.2.1
+  firebase_messaging:
 
 dev_dependencies:
   flutter_test:

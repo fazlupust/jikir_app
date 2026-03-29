@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'; // Import this
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'app/core/theme/app_theme.dart';
 import 'app/routes/app_pages.dart';
-// 1. Import the configuration file you created
 import 'firebase_options.dart';
 
 void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // 2. Pass the options to the initialization method
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    // --- FCM Token Logic ---
+    FirebaseMessaging.instance.getToken().then((token) {
+      debugPrint("🚀 FCM TOKEN: $token"); // This prints your token to the console
+    }).catchError((err) {
+      debugPrint("🚀 FCM TOKEN ERROR: $err");
+    });
+    // -----------------------
 
     await Hive.initFlutter();
     await Hive.openBox('jikir_data');
@@ -30,9 +38,7 @@ void main() async {
             title: "Dhikr App",
             initialRoute: '/splash',
             getPages: AppPages.routes,
-            theme: ThemeData.dark().copyWith(
-              scaffoldBackgroundColor: const Color(0xFF08090D),
-            ),
+            theme: AppTheme.getTheme('dark'),
           );
         },
       ),

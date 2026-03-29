@@ -13,7 +13,7 @@ class SplashController extends GetxController {
     if (FirebaseAuth.instance.currentUser != null) {
       Get.offAllNamed('/home');
     } else {
-      Get.offAllNamed('/home');
+      Get.offAllNamed('/auth');
     }
   }
 }

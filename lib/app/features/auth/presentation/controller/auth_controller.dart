@@ -1,51 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../data/repository/auth_repository_impl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthController extends GetxController {
-  // Observables for state management
+  final AuthRepositoryImpl authRepository;
+
+  AuthController(this.authRepository);
+
   var isLogin = true.obs;
   var isLoading = false.obs;
   var isPasswordVisible = false.obs;
 
-  // Form Controllers
-  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
   final passwordController = TextEditingController();
+  final fullNameController = TextEditingController();
 
   void toggleAuthMode() => isLogin.value = !isLogin.value;
-  void togglePasswordVisibility() =>
-      isPasswordVisible.value = !isPasswordVisible.value;
+  void togglePasswordVisibility() => isPasswordVisible.value = !isPasswordVisible.value;
 
   Future<void> submit() async {
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      Get.snackbar(
-        "Error",
-        "Please fill in all fields",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    final phone = phoneController.text.trim();
+    final password = passwordController.text.trim();
+    final fullName = fullNameController.text.trim();
+
+    if (phone.isEmpty || password.isEmpty) {
+      Get.snackbar("Error", "Phone and password are required", snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    if (!isLogin.value && fullName.isEmpty) {
+      Get.snackbar("Error", "Full name is required", snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
     isLoading.value = true;
     try {
       if (isLogin.value) {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
+        await authRepository.loginWithPhonePassword(phone, password);
       } else {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
+        await authRepository.signUpWithPhonePassword(fullName, phone, password);
       }
       Get.offAllNamed('/home');
     } on FirebaseAuthException catch (e) {
-      Get.snackbar(
-        "Auth Failed",
-        e.message ?? "An error occurred",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar("Auth Failed", e.message ?? "An error occurred", snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      Get.snackbar("Error", "Something went wrong: $e", snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> loginWithGoogle() async {
+    isLoading.value = true;
+    try {
+      final userCredential = await authRepository.signInWithGoogle();
+      if (userCredential != null) {
+        Get.offAllNamed('/home');
+      }
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar("Google Login Failed", e.message ?? "An error occurred", snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      Get.snackbar("Error", "Something went wrong: $e", snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }
@@ -53,8 +69,9 @@ class AuthController extends GetxController {
 
   @override
   void onClose() {
-    emailController.dispose();
+    phoneController.dispose();
     passwordController.dispose();
+    fullNameController.dispose();
     super.onClose();
   }
 }
