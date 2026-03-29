@@ -19,5 +19,7 @@ abstract class HomeRepository {
   Future<Map<String, int>> getTargets();
 
   Future<void> clearAllData();
+  Future<void> clearLocalData();
   String getCurrentUserId();
+  Future<void> syncHistoryFromFirebase();
 }

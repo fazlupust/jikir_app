@@ -48,7 +48,7 @@ class CounterScreen extends GetView<HomeController> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(item.ar, style: context.arabicText.copyWith(color: isActive ? item.color : appColors.txt2, fontSize: 16)),
-                          Text(item.en.toUpperCase(), style: TextStyle(fontSize: 8.5, letterSpacing: 1, color: isActive ? item.color.withOpacity(0.6) : appColors.txt3)),
+                          Text(item.bn, style: TextStyle(fontSize: 9, color: isActive ? item.color.withOpacity(0.8) : appColors.txt)),
                         ],
                       ),
                     ),
@@ -69,8 +69,11 @@ class CounterScreen extends GetView<HomeController> {
               ),
               child: Column(
                 children: [
-                  Text(curItem.ar, style: context.arabicText.copyWith(fontSize: 34, color: curItem.color)),
-                  Text(curItem.en.toUpperCase(), style: TextStyle(fontSize: 10, letterSpacing: 2.5, color: appColors.txt2)),
+                  Text(curItem.ar, textAlign: TextAlign.center, style: context.arabicText.copyWith(fontSize: 34, color: curItem.color)),
+                  const SizedBox(height: 4),
+                  Text(curItem.bn, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: appColors.txt, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(curItem.meaning, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: appColors.txt3, fontStyle: FontStyle.italic)),
                   const SizedBox(height: 18),
                   
                   // Big Number

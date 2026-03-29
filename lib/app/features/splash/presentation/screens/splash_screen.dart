@@ -9,20 +9,43 @@ class SplashScreen extends GetView<SplashController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: SafeArea(
+        child: Stack(
           children: [
-            Text(
-              "ذِكر",
-              style: TextStyle(color: AppColors.gold, fontSize: 60.sp),
+            // Center Logo
+            Align(
+              alignment: Alignment.center,
+              child: Text(
+                "ذِكر",
+                style: TextStyle(color: AppColors.gold, fontSize: 60.sp),
+              ),
             ),
-            const Spacer(),
-            Text(
-              "Version 1.0.1",
-              style: TextStyle(color: Colors.white24, fontSize: 12.sp),
+            
+            // Bottom Loading and Version
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 24.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: 20.w,
+                      width: 20.w,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.gold),
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Obx(() => Text(
+                      controller.appVersion.value.isEmpty ? "Loading..." : controller.appVersion.value,
+                      style: TextStyle(color: Colors.white24, fontSize: 12.sp, letterSpacing: 2),
+                    )),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 30.h),
           ],
         ),
       ),

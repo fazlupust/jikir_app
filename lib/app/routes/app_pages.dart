@@ -6,6 +6,8 @@ import '../features/splash/splash_binding.dart';
 import '../features/splash/presentation/screens/splash_screen.dart';
 import '../features/home/home_binding.dart';
 
+import '../features/home/presentation/screens/users_list_screen.dart';
+
 class AppPages {
   static final routes = [
     GetPage(
@@ -22,6 +24,10 @@ class AppPages {
       name: '/home',
       page: () => HomeScreen(),
       binding: HomeBinding(), // Injects Home Controller & Repo
+    ),
+    GetPage(
+      name: '/users_list',
+      page: () => const UsersListScreen(),
     ),
   ];
 }

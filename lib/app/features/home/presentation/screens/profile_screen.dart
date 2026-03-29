@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../controller/home_controller.dart';
 
@@ -24,18 +26,41 @@ class ProfileScreen extends GetView<HomeController> {
               child: Column(
                 children: [
                   const SizedBox(height: 10),
-                  Container(
-                    width: 80, height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(colors: [appColors.card2, appColors.card]),
-                      border: Border.all(color: appColors.goldD, width: 2),
+                  GestureDetector(
+                    onLongPress: () async {
+                      if (profile.role != 'admin') {
+                        final uid = FirebaseAuth.instance.currentUser?.uid;
+                        if (uid != null) {
+                          await FirebaseFirestore.instance.collection('users').doc(uid).set({'role': 'admin'}, SetOptions(merge: true));
+                          Get.snackbar("Developer Mode", "You've been granted Admin privileges! (Refresh app to see change)", snackPosition: SnackPosition.BOTTOM);
+                        }
+                      }
+                    },
+                    child: Container(
+                      width: 80, height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [appColors.card2, appColors.card]),
+                        border: Border.all(color: appColors.goldD, width: 2),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(profile.avatar, style: const TextStyle(fontSize: 35)),
                     ),
-                    alignment: Alignment.center,
-                    child: Text(profile.avatar, style: const TextStyle(fontSize: 35)),
                   ),
                   const SizedBox(height: 12),
                   Text(profile.name, style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 20, color: appColors.txt)),
+                  if (profile.role == 'admin') ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: appColors.gold, borderRadius: BorderRadius.circular(10)),
+                      child: Text("ADMIN", style: TextStyle(color: appColors.bg, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                    ),
+                  ],
+                  if (profile.phone.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(profile.phone, style: TextStyle(fontSize: 12, letterSpacing: 1, color: appColors.txt.withOpacity(0.8))),
+                  ],
                   const SizedBox(height: 4),
                   Text(profile.location, style: TextStyle(fontSize: 11, letterSpacing: 1, color: appColors.txt2)),
                   const SizedBox(height: 24),
@@ -71,13 +96,19 @@ class ProfileScreen extends GetView<HomeController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _InputRow(label: 'name'.tr, placeholder: profile.name, 
-                    onChanged: (v) => controller.saveProfile(v, profile.location, profile.dailyGoal)),
+                    onChanged: (v) => controller.saveProfile(v, profile.phone, profile.description, profile.location, profile.dailyGoal)),
+                  const SizedBox(height: 12),
+                  _InputRow(label: 'phone'.tr, placeholder: profile.phone.isEmpty ? 'Add Phone Number' : profile.phone, isNumber: true,
+                    onChanged: (v) => controller.saveProfile(profile.name, v, profile.description, profile.location, profile.dailyGoal)),
+                  const SizedBox(height: 12),
+                  _InputRow(label: 'Description / Bio', placeholder: profile.description.isEmpty ? 'Tell us about yourself' : profile.description, 
+                    onChanged: (v) => controller.saveProfile(profile.name, profile.phone, v, profile.location, profile.dailyGoal)),
                   const SizedBox(height: 12),
                   _InputRow(label: 'location'.tr, placeholder: profile.location, 
-                    onChanged: (v) => controller.saveProfile(profile.name, v, profile.dailyGoal)),
+                    onChanged: (v) => controller.saveProfile(profile.name, profile.phone, profile.description, v, profile.dailyGoal)),
                   const SizedBox(height: 12),
                   _InputRow(label: 'dailyGoal'.tr, placeholder: '${profile.dailyGoal}', isNumber: true, 
-                    onChanged: (v) => controller.saveProfile(profile.name, profile.location, int.tryParse(v) ?? 100)),
+                    onChanged: (v) => controller.saveProfile(profile.name, profile.phone, profile.description, profile.location, int.tryParse(v) ?? 100)),
                 ],
               ),
             )

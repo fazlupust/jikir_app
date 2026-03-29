@@ -115,6 +115,10 @@ class HomeRepositoryImpl implements HomeRepository {
     if (uid.isNotEmpty) {
       try {
         await _firestore.collection('users').doc(uid).set({
+          'fullName': profile.name,
+          'phone': profile.phone,
+          'description': profile.description,
+          // Not overwriting role here to prevent privilege escalation via profile saves
           'profile': profile.toMap()
         }, SetOptions(merge: true));
       } catch (_) {}
@@ -159,6 +163,14 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
+  Future<void> clearLocalData() async {
+    final keysToDelete = _box.keys.where((k) => k.toString().startsWith("dhikr_") || k.toString() == 'active_dates' || k.toString() == 'user_profile' || k.toString() == 'dhikr_targets').toList();
+    for (var key in keysToDelete) {
+      await _box.delete(key);
+    }
+  }
+
+  @override
   Future<void> clearAllData() async {
     final keysToDelete = _box.keys.where((k) => k.toString().startsWith("dhikr_")).toList();
     for (var key in keysToDelete) {
@@ -175,6 +187,52 @@ class HomeRepositoryImpl implements HomeRepository {
           await doc.reference.delete();
         }
       } catch (_) {}
+    }
+  }
+
+  @override
+  Future<void> syncHistoryFromFirebase() async {
+    final uid = getCurrentUserId();
+    if (uid.isEmpty) return;
+
+    try {
+      final collection = await _firestore.collection('users').doc(uid).collection('history').get();
+      List<String> activeDates = [];
+      
+      for (var doc in collection.docs) {
+        final date = doc.id;
+        activeDates.add(date);
+        
+        final data = doc.data();
+        data.forEach((key, value) {
+          if (key != 'last_sync' && value is Map) {
+            final categoryId = key;
+            final count = value['count'] as num? ?? 0;
+            final categoryName = value['name'] as String? ?? '';
+            final lastUpdatedStr = value['lastUpdated'] as String?;
+            
+            final model = DhikrModel(
+              categoryId: categoryId,
+              categoryName: categoryName,
+              userId: uid,
+              date: date,
+              count: count.toInt(),
+              lastUpdated: lastUpdatedStr != null ? DateTime.parse(lastUpdatedStr) : DateTime.now(),
+            );
+            
+            final String localKey = "dhikr_${date}_$categoryId";
+            _box.put(localKey, model.toFirestore());
+          }
+        });
+      }
+      
+      // Update active dates locally
+      final Set<String> uniqueDates = Set.from(_box.get('active_dates', defaultValue: []) ?? []);
+      uniqueDates.addAll(activeDates);
+      await _box.put('active_dates', uniqueDates.toList());
+      
+    } catch (e) {
+      // Fail silently, just means sync failed
     }
   }
 }

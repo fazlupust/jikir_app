@@ -4,6 +4,8 @@ class UserEntity {
   final String fullName;
   final String phone;
   final String authProvider;
+  final String role;
+  final String description;
 
   UserEntity({
     required this.uid,
@@ -11,6 +13,8 @@ class UserEntity {
     required this.fullName,
     required this.phone,
     required this.authProvider,
+    this.role = 'user',
+    this.description = '',
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +24,8 @@ class UserEntity {
       'fullName': fullName,
       'phone': phone,
       'authProvider': authProvider,
+      'role': role,
+      'description': description,
       'createdAt': DateTime.now().toIso8601String(),
     };
   }

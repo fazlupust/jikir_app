@@ -20,6 +20,37 @@ class HistoryScreen extends GetView<HomeController> {
             Text("dailyRecords".tr.toUpperCase(),
                 style: TextStyle(fontSize: 10, letterSpacing: 3, color: appColors.txt3)),
             const SizedBox(height: 8),
+
+            // All Days Grand Total
+            Obx(() {
+              int allTimeCount = 0;
+              controller.historyStatsByDate.values.forEach((catMap) {
+                catMap.values.forEach((v) => allTimeCount += v);
+              });
+              
+              if (allTimeCount > 0) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [appColors.card, appColors.card2], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: appColors.goldD),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("total".tr.toUpperCase(), style: TextStyle(fontSize: 11, letterSpacing: 2, color: appColors.txt2)),
+                        Text('$allTimeCount', style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 26, color: appColors.gold, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
+
             Container(
               decoration: BoxDecoration(
                 color: appColors.card,

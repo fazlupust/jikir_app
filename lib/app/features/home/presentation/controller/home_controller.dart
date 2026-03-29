@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/constants/dhikr_constants.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -59,6 +63,37 @@ class HomeController extends GetxController {
     // 2. Load Profile
     final pr = await repository.getProfile();
     profile.value = pr;
+    
+    // Attempt to sync fullName and phone from Firestore
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      try {
+        final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data()!;
+          final fName = data['fullName'] as String? ?? '';
+          final ph = data['phone'] as String? ?? '';
+          final desc = data['description'] as String? ?? '';
+          final rl = data['role'] as String? ?? 'user';
+          if (fName.isNotEmpty || ph.isNotEmpty || desc.isNotEmpty || profile.value.role != rl) {
+            final syncedPf = UserProfileEntity(
+              name: fName.isNotEmpty ? fName : profile.value.name,
+              phone: ph.isNotEmpty ? ph : profile.value.phone,
+              description: desc.isNotEmpty ? desc : profile.value.description,
+              role: rl,
+              location: profile.value.location,
+              dailyGoal: profile.value.dailyGoal,
+              avatar: profile.value.avatar,
+            );
+            profile.value = syncedPf;
+            repository.saveProfile(syncedPf);
+          }
+        }
+        
+        // Ensure local Hive dates are completely synced with Firebase upon login
+        await repository.syncHistoryFromFirebase();
+      } catch (_) {}
+    }
 
     // 3. Load Targets
     final savedTargets = await repository.getTargets();
@@ -219,10 +254,13 @@ class HomeController extends GetxController {
     }
   }
 
-  void saveProfile(String name, String location, int goal) {
+  void saveProfile(String name, String phone, String description, String location, int goal) {
     final cur = profile.value;
     final updated = UserProfileEntity(
       name: name.isEmpty ? cur.name : name,
+      phone: phone.isEmpty ? cur.phone : phone,
+      description: description.isEmpty ? cur.description : description,
+      role: cur.role,
       location: location.isEmpty ? cur.location : location,
       dailyGoal: goal,
       avatar: cur.avatar,
@@ -234,6 +272,9 @@ class HomeController extends GetxController {
   void updateAvatar(String emoji) {
     final updated = UserProfileEntity(
       name: profile.value.name,
+      phone: profile.value.phone,
+      description: profile.value.description,
+      role: profile.value.role,
       location: profile.value.location,
       dailyGoal: profile.value.dailyGoal,
       avatar: emoji,
@@ -257,6 +298,26 @@ class HomeController extends GetxController {
     historyStatsByDate.clear();
     activeDates.clear();
     Get.snackbar("Success", "All records have been cleared", snackPosition: SnackPosition.BOTTOM);
+  }
+
+  Future<void> logout() async {
+    try {
+      await repository.clearLocalData();
+      undoStack.clear();
+      currentCount.value = 0;
+      todayGrandTotal.value = 0;
+      todayStats.clear();
+      allTimeStats.clear();
+      historyStatsByDate.clear();
+      activeDates.clear();
+      profile.value = UserProfileEntity.empty();
+
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
+      Get.offAllNamed('/auth');
+    } catch (e) {
+      Get.snackbar("Error", "Failed to logout: $e", snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
   // HISTORY & STATS (Loaded lazily when tabs are visited)

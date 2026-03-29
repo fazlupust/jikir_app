@@ -79,6 +79,8 @@ class AuthRepositoryImpl {
       fullName: fullName,
       phone: phone,
       authProvider: authProvider,
+      role: 'user',
+      description: '',
     );
     await _firestore.collection('users').doc(uid).set(user.toMap());
   }
