@@ -133,6 +133,44 @@ class AppColors {
     white2: Color(0xFFFFF5F7),
   );
 
+  static const midnightTheme = AppColors(
+    bg: Color(0xFF020617),
+    surf: Color(0xFF0f172a),
+    card: Color(0xFF1e293b),
+    card2: Color(0xFF334155),
+    bdr: Color(0xFF475569),
+    bdr2: Color(0xFF64748b),
+    gold: Color(0xFF818cf8),
+    goldL: Color(0xFFa5b4fc),
+    goldD: Color(0xFF4338ca),
+    txt: Color(0xFFf8fafc),
+    txt2: Color(0xFF94a3b8),
+    txt3: Color(0xFF475569),
+    txt4: Color(0xFFFFFFFF),
+    accent: Color(0xFF818cf8),
+    white: Color(0xFFFFFFFF),
+    white2: Color(0xFFF1F5F9),
+  );
+
+  static const amberTheme = AppColors(
+    bg: Color(0xFF121212),
+    surf: Color(0xFF1c1917),
+    card: Color(0xFF292524),
+    card2: Color(0xFF44403c),
+    bdr: Color(0xFF57534e),
+    bdr2: Color(0xFF78716c),
+    gold: Color(0xFFfbbf24),
+    goldL: Color(0xFFfcd34d),
+    goldD: Color(0xFFb45309),
+    txt: Color(0xFFfafaf9),
+    txt2: Color(0xFFa8a29e),
+    txt3: Color(0xFF57534e),
+    txt4: Color(0xFFFFFFFF),
+    accent: Color(0xFFfbbf24),
+    white: Color(0xFFFFFFFF),
+    white2: Color(0xFFF5F5F4),
+  );
+
   static AppColors getColors(String themeName) {
     switch (themeName.toLowerCase()) {
       case 'light':
@@ -143,6 +181,10 @@ class AppColors {
         return emeraldTheme;
       case 'rose':
         return roseTheme;
+      case 'midnight':
+        return midnightTheme;
+      case 'amber':
+        return amberTheme;
       case 'dark':
       default:
         return darkTheme;

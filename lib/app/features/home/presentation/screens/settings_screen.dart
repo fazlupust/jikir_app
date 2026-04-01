@@ -30,6 +30,8 @@ class SettingsScreen extends GetView<HomeController> {
                   _ThemeSwatch(theme: 'ocean', label: 'ocean'.tr, active: settings.theme == 'ocean'),
                   _ThemeSwatch(theme: 'emerald', label: 'emerald'.tr, active: settings.theme == 'emerald'),
                   _ThemeSwatch(theme: 'rose', label: 'rose'.tr, active: settings.theme == 'rose'),
+                  _ThemeSwatch(theme: 'midnight', label: 'Midnight', active: settings.theme == 'midnight'),
+                  _ThemeSwatch(theme: 'amber', label: 'Amber', active: settings.theme == 'amber'),
                 ],
               ),
             ),
@@ -150,6 +152,8 @@ class _ThemeSwatch extends GetView<HomeController> {
     if(theme == 'ocean') grad = [const Color(0xFF040d18), const Color(0xFF38bdf8)];
     if(theme == 'emerald') grad = [const Color(0xFF030d08), const Color(0xFF4ade80)];
     if(theme == 'rose') grad = [const Color(0xFF0e060a), const Color(0xFFfb7185)];
+    if(theme == 'midnight') grad = [const Color(0xFF020617), const Color(0xFF818cf8)];
+    if(theme == 'amber') grad = [const Color(0xFF121212), const Color(0xFFfbbf24)];
 
     return GestureDetector(
       onTap: () => controller.setTheme(theme),

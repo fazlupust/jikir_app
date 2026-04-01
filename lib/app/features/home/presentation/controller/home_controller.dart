@@ -41,10 +41,54 @@ class HomeController extends GetxController {
 
   // History & Stats State
   var activeDates = <String>[].obs;
-  var historyStatsByDate = <String, Map<String, int>>{}.obs; // date -> {cat: count}
+  var historyStatsByDate =
+      <String, Map<String, int>>{}.obs; // date -> {cat: count}
   var allTimeStats = <String, int>{}.obs;
   var todayStats = <String, int>{}.obs;
   var weekStats = <String, int>{}.obs;
+
+  // Filters
+  var filterDay = Rxn<int>();
+  var filterMonth = Rxn<int>();
+  var filterYear = Rxn<int>();
+  final RxBool showDetails = true.obs;
+  final RxBool isCollapsed = false.obs;
+  List<String> get filteredActiveDates {
+    if (filterDay.value == null &&
+        filterMonth.value == null &&
+        filterYear.value == null) {
+      return activeDates.toList();
+    }
+    return activeDates.where((dateStr) {
+      try {
+        final d = DateTime.parse(dateStr);
+        bool matchDay = filterDay.value == null || d.day == filterDay.value;
+        bool matchMonth =
+            filterMonth.value == null || d.month == filterMonth.value;
+        bool matchYear = filterYear.value == null || d.year == filterYear.value;
+        return matchDay && matchMonth && matchYear;
+      } catch (e) {
+        return false;
+      }
+    }).toList();
+  }
+
+  int get currentFilteredTotal {
+    int total = 0;
+    for (var date in filteredActiveDates) {
+      final stats = historyStatsByDate[date] ?? {};
+      for (var val in stats.values) {
+        total += val;
+      }
+    }
+    return total;
+  }
+
+  void clearFilters() {
+    filterDay.value = null;
+    filterMonth.value = null;
+    filterYear.value = null;
+  }
 
   String get today => DateFormat('yyyy-MM-dd').format(DateTime.now());
 
@@ -63,19 +107,25 @@ class HomeController extends GetxController {
     // 2. Load Profile
     final pr = await repository.getProfile();
     profile.value = pr;
-    
+
     // Attempt to sync fullName and phone from Firestore
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid != null) {
       try {
-        final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .get();
         if (doc.exists && doc.data() != null) {
           final data = doc.data()!;
           final fName = data['fullName'] as String? ?? '';
           final ph = data['phone'] as String? ?? '';
           final desc = data['description'] as String? ?? '';
           final rl = data['role'] as String? ?? 'user';
-          if (fName.isNotEmpty || ph.isNotEmpty || desc.isNotEmpty || profile.value.role != rl) {
+          if (fName.isNotEmpty ||
+              ph.isNotEmpty ||
+              desc.isNotEmpty ||
+              profile.value.role != rl) {
             final syncedPf = UserProfileEntity(
               name: fName.isNotEmpty ? fName : profile.value.name,
               phone: ph.isNotEmpty ? ph : profile.value.phone,
@@ -89,7 +139,7 @@ class HomeController extends GetxController {
             repository.saveProfile(syncedPf);
           }
         }
-        
+
         // Ensure local Hive dates are completely synced with Firebase upon login
         await repository.syncHistoryFromFirebase();
       } catch (_) {}
@@ -110,12 +160,12 @@ class HomeController extends GetxController {
     // Load total count for this category today
     var stats = await repository.getStatsForDate(today);
     todayStats.assignAll(stats);
-    
-    // Determine the current session count. If the user wants the counter 
+
+    // Determine the current session count. If the user wants the counter
     // to reset independently, we load the total as the initial counter amount,
     // but when they reset, only currentCount will be 0.
     currentCount.value = stats[currentCat.value] ?? 0;
-    
+
     stats.forEach((key, value) {
       todayGrandTotal.value += value;
     });
@@ -144,7 +194,7 @@ class HomeController extends GetxController {
   Future<void> increment() async {
     currentCount.value++;
     todayGrandTotal.value++;
-    
+
     // Accumulate the daily stat instead of setting it to currentCount
     todayStats[currentCat.value] = (todayStats[currentCat.value] ?? 0) + 1;
 
@@ -154,13 +204,24 @@ class HomeController extends GetxController {
     if (settings.value.vibration) {
       HapticFeedback.lightImpact();
     }
+    if (settings.value.sound) {
+      SystemSound.play(SystemSoundType.click);
+    }
 
     int target = targets[currentCat.value] ?? 33;
     if (settings.value.milestoneAlerts) {
       if (currentCount.value == target) {
-        Get.snackbar('🎉 Mashallah', 'Target Reached!', snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          '🎉 Mashallah',
+          'Target Reached!',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       } else if (currentCount.value > 0 && currentCount.value % 100 == 0) {
-        Get.snackbar('✨ Barakallah', '${currentCount.value} Reached!', snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          '✨ Barakallah',
+          '${currentCount.value} Reached!',
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     }
 
@@ -169,11 +230,11 @@ class HomeController extends GetxController {
 
   Future<void> undo() async {
     if (undoStack.isEmpty) return;
-    
+
     final action = undoStack.removeLast();
     if (action.date == today && action.categoryId == currentCat.value) {
       if (currentCount.value > 0) currentCount.value--;
-      
+
       int countForCat = todayStats[currentCat.value] ?? 0;
       if (countForCat > 0) {
         todayStats[currentCat.value] = countForCat - 1;
@@ -200,7 +261,7 @@ class HomeController extends GetxController {
     int finalCount = todayStats[categoryId] ?? 0;
     final dItem = DhikrConstants.get(categoryId);
     final uid = repository.getCurrentUserId();
-    
+
     final entity = DhikrEntity(
       categoryId: dItem.id,
       categoryName: dItem.en,
@@ -213,14 +274,17 @@ class HomeController extends GetxController {
   }
 
   // SETTINGS & PROFILE
-  void setVibration(bool val) => _updateSettings(settings.value.copyWith(vibration: val));
-  void setSound(bool val) => _updateSettings(settings.value.copyWith(sound: val));
-  void setMilestoneAlerts(bool val) => _updateSettings(settings.value.copyWith(milestoneAlerts: val));
+  void setVibration(bool val) =>
+      _updateSettings(settings.value.copyWith(vibration: val));
+  void setSound(bool val) =>
+      _updateSettings(settings.value.copyWith(sound: val));
+  void setMilestoneAlerts(bool val) =>
+      _updateSettings(settings.value.copyWith(milestoneAlerts: val));
   void setKeepScreenOn(bool val) {
     _updateSettings(settings.value.copyWith(keepScreenOn: val));
     _applySettings();
   }
-  
+
   void setTheme(String themeId) {
     _updateSettings(settings.value.copyWith(theme: themeId));
     Get.changeTheme(AppTheme.getTheme(themeId));
@@ -239,7 +303,7 @@ class HomeController extends GetxController {
   void _applySettings() {
     Get.changeTheme(AppTheme.getTheme(settings.value.theme));
     Get.updateLocale(Locale(settings.value.language));
-    
+
     if (settings.value.keepScreenOn) {
       WakelockPlus.enable();
     } else {
@@ -247,7 +311,13 @@ class HomeController extends GetxController {
     }
   }
 
-  void saveProfile(String name, String phone, String description, String location, int goal) {
+  void saveProfile(
+    String name,
+    String phone,
+    String description,
+    String location,
+    int goal,
+  ) {
     final cur = profile.value;
     final updated = UserProfileEntity(
       name: name.isEmpty ? cur.name : name,
@@ -278,7 +348,11 @@ class HomeController extends GetxController {
 
   Future<void> exportData() async {
     // Implementing export as a simple scaffold
-    Get.snackbar("Export", "Data exported successfully", snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar(
+      "Export",
+      "Data exported successfully",
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 
   Future<void> clearAllData() async {
@@ -290,7 +364,11 @@ class HomeController extends GetxController {
     allTimeStats.clear();
     historyStatsByDate.clear();
     activeDates.clear();
-    Get.snackbar("Success", "All records have been cleared", snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar(
+      "Success",
+      "All records have been cleared",
+      snackPosition: SnackPosition.BOTTOM,
+    );
   }
 
   Future<void> logout() async {
@@ -309,7 +387,11 @@ class HomeController extends GetxController {
       await GoogleSignIn().signOut();
       Get.offAllNamed('/auth');
     } catch (e) {
-      Get.snackbar("Error", "Failed to logout: $e", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Error",
+        "Failed to logout: $e",
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
@@ -317,7 +399,7 @@ class HomeController extends GetxController {
   Future<void> loadHistory() async {
     final dates = await repository.getActiveDates();
     activeDates.value = dates;
-    
+
     Map<String, Map<String, int>> map = {};
     for (var d in dates) {
       map[d] = await repository.getStatsForDate(d);
@@ -328,12 +410,14 @@ class HomeController extends GetxController {
   Future<void> loadStats() async {
     final allTime = await repository.getAllTimeStats();
     allTimeStats.assignAll(allTime);
-    
+
     // Week stats requires parsing last 7 days
     Map<String, int> week = {};
     final DateTime now = DateTime.now();
     for (int i = 0; i < 7; i++) {
-      String dStr = DateFormat('yyyy-MM-dd').format(now.subtract(Duration(days: i)));
+      String dStr = DateFormat(
+        'yyyy-MM-dd',
+      ).format(now.subtract(Duration(days: i)));
       var dayStats = await repository.getStatsForDate(dStr);
       dayStats.forEach((cat, cnt) {
         week[cat] = (week[cat] ?? 0) + cnt;
