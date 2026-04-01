@@ -145,7 +145,6 @@ class _Badge extends StatelessWidget {
     );
   }
 }
-
 class _InputRow extends StatelessWidget {
   final String label;
   final String placeholder;
