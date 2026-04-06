@@ -17,7 +17,8 @@ class AuthController extends GetxController {
   final fullNameController = TextEditingController();
 
   void toggleAuthMode() => isLogin.value = !isLogin.value;
-  void togglePasswordVisibility() => isPasswordVisible.value = !isPasswordVisible.value;
+  void togglePasswordVisibility() =>
+      isPasswordVisible.value = !isPasswordVisible.value;
 
   Future<void> submit() async {
     final phone = phoneController.text.trim();
@@ -25,12 +26,24 @@ class AuthController extends GetxController {
     final fullName = fullNameController.text.trim();
 
     if (phone.isEmpty || password.isEmpty) {
-      Get.snackbar("Error", "Phone and password are required", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Error",
+        "Phone and password are required",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
+      );
       return;
     }
 
     if (!isLogin.value && fullName.isEmpty) {
-      Get.snackbar("Error", "Full name is required", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Error",
+        "Full name is required",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
+      );
       return;
     }
 
@@ -43,9 +56,21 @@ class AuthController extends GetxController {
       }
       Get.offAllNamed('/home');
     } on FirebaseAuthException catch (e) {
-      Get.snackbar("Auth Failed", e.message ?? "An error occurred", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Auth Failed",
+        e.message ?? "An error occurred",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
+      );
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong: $e", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Error",
+        "Something went wrong: $e",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -59,9 +84,21 @@ class AuthController extends GetxController {
         Get.offAllNamed('/home');
       }
     } on FirebaseAuthException catch (e) {
-      Get.snackbar("Google Login Failed", e.message ?? "An error occurred", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Google Login Failed",
+        e.message ?? "An error occurred",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
+      );
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong: $e", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        "Error",
+        "Something went wrong: $e",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
+      );
     } finally {
       isLoading.value = false;
     }

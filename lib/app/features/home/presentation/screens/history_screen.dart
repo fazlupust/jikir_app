@@ -411,7 +411,7 @@ class HistoryScreen extends GetView<HomeController> {
                                                   Text(
                                                     dhikrItem.meaning,
                                                     style: TextStyle(
-                                                      color: appColors.white,
+                                                      color: appColors.txt2,
                                                       fontSize: 11,
                                                     ),
                                                   ),

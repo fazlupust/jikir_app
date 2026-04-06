@@ -32,7 +32,7 @@ class StatsScreen extends GetView<HomeController> {
                   border: Border.all(color: appColors.gold),
                 ),
                 labelColor: appColors.gold,
-                unselectedLabelColor: appColors.white,
+                unselectedLabelColor: appColors.txt2,
                 labelStyle: const TextStyle(
                   fontSize: 10,
                   letterSpacing: 1.5,
@@ -57,14 +57,14 @@ class StatsScreen extends GetView<HomeController> {
                 _buildStatsList(
                   context,
                   controller.allTimeStats,
-                  "allTimeGrand".tr,
+                  "allTime Total".tr,
                 ),
                 _buildStatsList(
                   context,
                   controller.todayStats,
-                  "todayGrand".tr,
+                  "today Total".tr,
                 ),
-                _buildStatsList(context, controller.weekStats, "weekGrand".tr),
+                _buildStatsList(context, controller.weekStats, "week Total".tr),
               ],
             ),
           ),
@@ -178,10 +178,7 @@ class StatsScreen extends GetView<HomeController> {
                         const SizedBox(height: 2),
                         Text(
                           item.meaning.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: appColors.white,
-                          ),
+                          style: TextStyle(fontSize: 10, color: appColors.txt2),
                         ),
                         const SizedBox(height: 8),
                         Container(

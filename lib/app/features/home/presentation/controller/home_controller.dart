@@ -1,5 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -107,7 +111,7 @@ class HomeController extends GetxController {
     // 2. Load Profile
     final pr = await repository.getProfile();
     profile.value = pr;
-
+    print(pr);
     // Attempt to sync fullName and phone from Firestore
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid != null) {
@@ -118,6 +122,8 @@ class HomeController extends GetxController {
             .get();
         if (doc.exists && doc.data() != null) {
           final data = doc.data()!;
+          print("data");
+          print(data);
           final fName = data['fullName'] as String? ?? '';
           final ph = data['phone'] as String? ?? '';
           final desc = data['description'] as String? ?? '';
@@ -215,12 +221,16 @@ class HomeController extends GetxController {
           '🎉 Mashallah',
           'Target Reached!',
           snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Get.theme.primaryColor,
+          colorText: Get.theme.scaffoldBackgroundColor,
         );
       } else if (currentCount.value > 0 && currentCount.value % 100 == 0) {
         Get.snackbar(
           '✨ Barakallah',
           '${currentCount.value} Reached!',
           snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Get.theme.primaryColor,
+          colorText: Get.theme.scaffoldBackgroundColor,
         );
       }
     }
@@ -318,6 +328,7 @@ class HomeController extends GetxController {
     String location,
     int goal,
   ) {
+    print('save pro');
     final cur = profile.value;
     final updated = UserProfileEntity(
       name: name.isEmpty ? cur.name : name,
@@ -330,6 +341,44 @@ class HomeController extends GetxController {
     );
     profile.value = updated;
     repository.saveProfile(updated);
+  }
+
+  Future<void> updateRemoteProfile() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'fullName': profile.value.name,
+          'phone': profile.value.phone,
+          'description': profile.value.description,
+          'location': profile.value.location,
+          'dailyGoal': profile.value.dailyGoal,
+        }, SetOptions(merge: true));
+        Get.snackbar(
+          "Success",
+          "Profile updated successfully!",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Get.theme.primaryColor,
+          colorText: Get.theme.scaffoldBackgroundColor,
+        );
+      } catch (e) {
+        Get.snackbar(
+          "Error",
+          "Failed to update profile",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Get.theme.primaryColor,
+          colorText: Get.theme.scaffoldBackgroundColor,
+        );
+      }
+    } else {
+      Get.snackbar(
+        "Info",
+        "Profile saved locally",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
+      );
+    }
   }
 
   void updateAvatar(String emoji) {
@@ -347,12 +396,57 @@ class HomeController extends GetxController {
   }
 
   Future<void> exportData() async {
-    // Implementing export as a simple scaffold
-    Get.snackbar(
-      "Export",
-      "Data exported successfully",
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    try {
+      final jsonStr = await repository.exportDataToJson();
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/jikir_backup.json');
+      await file.writeAsString(jsonStr);
+
+      await Share.shareXFiles([
+        XFile(file.path),
+      ], text: 'Jikir App Backup Data');
+    } catch (e) {
+      Get.snackbar(
+        "Export Error",
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
+      );
+    }
+  }
+
+  Future<void> importData() async {
+    try {
+      FilePickerResult? result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result != null && result.files.single.path != null) {
+        String filepath = result.files.single.path!;
+        String jsonStr = await File(filepath).readAsString();
+        await repository.importDataFromJson(jsonStr);
+
+        // Reload UI Data
+        await _loadInitialData();
+        Get.snackbar(
+          "Success",
+          "Data imported successfully. App refreshed.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Get.theme.primaryColor,
+          colorText: Get.theme.scaffoldBackgroundColor,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Import Error",
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
+      );
+    }
   }
 
   Future<void> clearAllData() async {
@@ -368,6 +462,8 @@ class HomeController extends GetxController {
       "Success",
       "All records have been cleared",
       snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Get.theme.primaryColor,
+      colorText: Get.theme.scaffoldBackgroundColor,
     );
   }
 
@@ -391,6 +487,8 @@ class HomeController extends GetxController {
         "Error",
         "Failed to logout: $e",
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.primaryColor,
+        colorText: Get.theme.scaffoldBackgroundColor,
       );
     }
   }

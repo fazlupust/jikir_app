@@ -77,7 +77,7 @@ class CounterScreen extends GetView<HomeController> {
                             controller.isCollapsed.value
                                 ? Icons.keyboard_arrow_down
                                 : Icons.keyboard_arrow_up,
-                            color: appColors.white,
+                            color: appColors.txt2,
                             size: 18,
                           ),
                         ),
@@ -132,7 +132,7 @@ class CounterScreen extends GetView<HomeController> {
                                     style: context.arabicText.copyWith(
                                       color: isActive
                                           ? item.color
-                                          : appColors.white,
+                                          : appColors.txt,
                                       fontSize: 20,
                                     ),
                                   ),
@@ -200,7 +200,7 @@ class CounterScreen extends GetView<HomeController> {
                                       ? "HIDE DETAILS"
                                       : "SHOW DETAILS",
                                   style: TextStyle(
-                                    color: appColors.white,
+                                    color: appColors.txt2,
                                     fontSize: 10,
                                     letterSpacing: 2,
                                     fontWeight: FontWeight.bold,
@@ -210,7 +210,7 @@ class CounterScreen extends GetView<HomeController> {
                                   controller.showDetails.value
                                       ? Icons.keyboard_arrow_up
                                       : Icons.keyboard_arrow_down,
-                                  color: appColors.white,
+                                  color: appColors.txt2,
                                   size: 16,
                                 ),
                               ],
@@ -270,7 +270,7 @@ class CounterScreen extends GetView<HomeController> {
                         style: TextStyle(
                           fontSize: 10,
                           letterSpacing: 1,
-                          color: appColors.white,
+                          color: appColors.txt2,
                         ),
                       ),
                       const Spacer(),
@@ -372,10 +372,7 @@ class CounterScreen extends GetView<HomeController> {
                     children: [
                       OutlinedButton.icon(
                         icon: const Icon(Icons.undo, size: 14),
-                        label: Text(
-                          'Undo'.tr,
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                        label: Text('Undo'.tr),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: appColors.txt2,
                           side: BorderSide(color: appColors.bdr2),
@@ -438,11 +435,11 @@ class CounterScreen extends GetView<HomeController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "today Grand".tr.toUpperCase(),
+                    "today Total".tr.toUpperCase(),
                     style: TextStyle(
                       fontSize: 11,
                       letterSpacing: 2,
-                      color: appColors.white,
+                      color: appColors.txt,
                     ),
                   ),
                   Text(
@@ -456,6 +453,83 @@ class CounterScreen extends GetView<HomeController> {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+
+            // 4. BREAKDOWN OF TODAY'S DHIKR
+            if (controller.todayStats.isNotEmpty) ...[
+              Builder(
+                builder: (context) {
+                  final sortedStats =
+                      controller.todayStats.entries
+                          .where((e) => e.value > 0)
+                          .toList()
+                        ..sort((a, b) => b.value.compareTo(a.value));
+
+                  if (sortedStats.isEmpty) return const SizedBox();
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "TODAY'S BREAKDOWN",
+                        style: TextStyle(
+                          fontSize: 10,
+                          letterSpacing: 2,
+                          color: appColors.txt2,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...sortedStats.map((e) {
+                        final dhikr = DhikrConstants.get(e.key);
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: appColors.card,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: appColors.bdr),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 3,
+                                height: 16,
+                                margin: const EdgeInsets.only(right: 12),
+                                decoration: BoxDecoration(
+                                  color: dhikr.color,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  dhikr.ar,
+                                  style: TextStyle(
+                                    color: appColors.txt,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '${e.value}',
+                                style: TextStyle(
+                                  color: appColors.txt,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  );
+                },
+              ),
+            ],
+            const SizedBox(height: 30),
           ],
         ),
       );

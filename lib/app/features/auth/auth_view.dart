@@ -60,7 +60,7 @@ class AuthView extends StatelessWidget {
     return TextField(
       controller: ctr,
       obscureText: isPass,
-      style: TextStyle(color: Colors.white),
+      style: TextStyle(color: AppColors.textMain),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(color: AppColors.textSecondary),

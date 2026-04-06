@@ -8,7 +8,10 @@ class AuthRepositoryImpl {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  Future<UserCredential> loginWithPhonePassword(String phone, String password) async {
+  Future<UserCredential> loginWithPhonePassword(
+    String phone,
+    String password,
+  ) async {
     final email = _phoneToEmail(phone);
     return await _auth.signInWithEmailAndPassword(
       email: email,
@@ -16,13 +19,17 @@ class AuthRepositoryImpl {
     );
   }
 
-  Future<UserCredential> signUpWithPhonePassword(String fullName, String phone, String password) async {
+  Future<UserCredential> signUpWithPhonePassword(
+    String fullName,
+    String phone,
+    String password,
+  ) async {
     final email = _phoneToEmail(phone);
     final userCredential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
-    
+
     if (userCredential.user != null) {
       await _saveUserToFirestore(
         uid: userCredential.user!.uid,
@@ -32,15 +39,17 @@ class AuthRepositoryImpl {
         authProvider: 'phone_password',
       );
     }
-    
+
     return userCredential;
   }
 
   Future<UserCredential?> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-    if (googleUser == null) return null; // Make sure the user didn't cancel the flow
+    if (googleUser == null)
+      return null; // Make sure the user didn't cancel the flow
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
@@ -51,7 +60,10 @@ class AuthRepositoryImpl {
 
     if (userCredential.user != null) {
       // Check if user exists in Firestore, if not create them
-      final doc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
+      final doc = await _firestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .get();
       if (!doc.exists) {
         await _saveUserToFirestore(
           uid: userCredential.user!.uid,
@@ -73,6 +85,7 @@ class AuthRepositoryImpl {
     required String phone,
     required String authProvider,
   }) async {
+    print('sdf');
     final user = UserEntity(
       uid: uid,
       email: email,

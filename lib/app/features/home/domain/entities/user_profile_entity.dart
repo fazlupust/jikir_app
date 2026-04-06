@@ -34,7 +34,6 @@ class UserProfileEntity {
       'name': name,
       'phone': phone,
       'description': description,
-      'role': role,
       'location': location,
       'dailyGoal': dailyGoal,
       'avatar': avatar,

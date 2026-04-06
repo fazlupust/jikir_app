@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive/hive.dart';
@@ -240,6 +241,58 @@ class HomeRepositoryImpl implements HomeRepository {
       
     } catch (e) {
       // Fail silently, just means sync failed
+    }
+  }
+
+  @override
+  Future<String> exportDataToJson() async {
+    final Map<String, dynamic> data = {};
+    for (var key in _box.keys) {
+      data[key.toString()] = _box.get(key);
+    }
+    return jsonEncode(data);
+  }
+
+  @override
+  Future<void> importDataFromJson(String jsonString) async {
+    try {
+      final Map<String, dynamic> data = jsonDecode(jsonString);
+      
+      // Wipe current and overwrite with the new
+      await _box.clear();
+      for (var entry in data.entries) {
+        await _box.put(entry.key, entry.value);
+      }
+
+      // Sync the new local history data to Firestore if logged in
+      final uid = getCurrentUserId();
+      if (uid.isNotEmpty) {
+        for (var key in _box.keys) {
+          String k = key.toString();
+          if (k.startsWith("dhikr_") && k != "dhikr_targets") {
+            final docData = _box.get(key);
+            if (docData != null && docData is Map) {
+              try {
+                await _firestore
+                  .collection('users')
+                  .doc(uid)
+                  .collection('history')
+                  .doc(docData['date'])
+                  .set({
+                    docData['categoryId']: {
+                      'name': docData['categoryName'],
+                      'count': docData['count'],
+                      'lastUpdated': docData['lastUpdated'] is DateTime ? (docData['lastUpdated'] as DateTime).toIso8601String() : docData['lastUpdated'].toString(),
+                    },
+                    'last_sync': FieldValue.serverTimestamp(),
+                  }, SetOptions(merge: true));
+              } catch (_) {}
+            }
+          }
+        }
+      }
+    } catch (e) {
+      throw Exception("Invalid backup file");
     }
   }
 }

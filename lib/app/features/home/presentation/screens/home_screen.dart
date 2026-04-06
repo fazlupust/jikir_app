@@ -17,7 +17,6 @@ class HomeScreen extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final appColors = context.appColors;
-      final navTheme = Theme.of(context).bottomNavigationBarTheme;
 
       return Scaffold(
         backgroundColor: appColors.bg,
@@ -75,32 +74,32 @@ class HomeScreen extends GetView<HomeController> {
             type: BottomNavigationBarType.fixed,
             backgroundColor: appColors.surf,
             selectedItemColor: appColors.gold,
-            unselectedItemColor: appColors.white,
+            unselectedItemColor: appColors.txt2,
             selectedFontSize: 13,
             unselectedFontSize: 13,
             items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.touch_app_outlined,color: Colors.white), // Simplified for now, need custom or appropriate icons
+                icon: Icon(Icons.touch_app_outlined), // Simplified for now, need custom or appropriate icons
                 activeIcon: _activeIcon(Icons.touch_app_outlined, appColors.gold),
                 label: 'Counter'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.calendar_today_outlined,color: Colors.white),
+                icon: Icon(Icons.calendar_today_outlined),
                 activeIcon: _activeIcon(Icons.calendar_today_outlined, appColors.gold),
                 label: 'History'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.bar_chart_outlined,color: Colors.white),
+                icon: Icon(Icons.bar_chart_outlined),
                 activeIcon: _activeIcon(Icons.bar_chart_outlined, appColors.gold),
                 label: 'Stats'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline,color: Colors.white),
+                icon: Icon(Icons.person_outline),
                 activeIcon: _activeIcon(Icons.person_outline, appColors.gold),
                 label: 'Profile'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.settings_outlined,color: Colors.white),
+                icon: Icon(Icons.settings_outlined),
                 activeIcon: _activeIcon(Icons.settings_outlined, appColors.gold),
                 label: 'Settings'.tr,
               ),

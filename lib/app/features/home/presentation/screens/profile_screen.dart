@@ -32,7 +32,7 @@ class ProfileScreen extends GetView<HomeController> {
                         final uid = FirebaseAuth.instance.currentUser?.uid;
                         if (uid != null) {
                           await FirebaseFirestore.instance.collection('users').doc(uid).set({'role': 'admin'}, SetOptions(merge: true));
-                          Get.snackbar("Developer Mode", "You've been granted Admin privileges! (Refresh app to see change)", snackPosition: SnackPosition.BOTTOM);
+                          Get.snackbar("Developer Mode", "You've been granted Admin privileges! (Refresh app to see change)", snackPosition: SnackPosition.BOTTOM, backgroundColor: Get.theme.primaryColor, colorText: Get.theme.scaffoldBackgroundColor);
                         }
                       }
                     },
@@ -109,6 +109,17 @@ class ProfileScreen extends GetView<HomeController> {
                   const SizedBox(height: 12),
                   _InputRow(label: 'dailyGoal'.tr, placeholder: '${profile.dailyGoal}', isNumber: true, 
                     onChanged: (v) => controller.saveProfile(profile.name, profile.phone, profile.description, profile.location, int.tryParse(v) ?? 100)),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => controller.updateRemoteProfile(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appColors.gold,
+                      foregroundColor: appColors.bg,
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text("UPDATE PROFILE", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
+                  ),
                 ],
               ),
             )
@@ -174,7 +185,7 @@ class _InputRow extends StatelessWidget {
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: colors.bdr2)),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: colors.goldD)),
           ),
-          onSubmitted: onChanged,
+          onChanged: onChanged,
         )
       ],
     );

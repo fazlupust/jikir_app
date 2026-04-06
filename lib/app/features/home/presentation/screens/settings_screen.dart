@@ -11,6 +11,7 @@ class SettingsScreen extends GetView<HomeController> {
     return Obx(() {
       final appColors = context.appColors;
       final settings = controller.settings.value;
+      final profile = controller.profile.value;
 
       return Container(
         color: appColors.bg,
@@ -82,20 +83,30 @@ class SettingsScreen extends GetView<HomeController> {
               decoration: BoxDecoration(color: appColors.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: appColors.bdr)),
               child: Column(
                 children: [
-                  ListTile(
-                    leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: appColors.card2, borderRadius: BorderRadius.circular(10)), child: const Text('👥')),
-                    title: Text('User Directory', style: TextStyle(color: appColors.txt, fontSize: 13)),
-                    subtitle: Text('View all registered users', style: TextStyle(color: appColors.txt3, fontSize: 10)),
-                    trailing: Icon(Icons.chevron_right, color: appColors.txt3),
-                    onTap: () => Get.toNamed('/users_list'),
-                  ),
-                  Divider(color: appColors.bdr, height: 1),
+                  if (profile.role == 'admin') ...[
+                    ListTile(
+                      leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: appColors.card2, borderRadius: BorderRadius.circular(10)), child: const Text('👥')),
+                      title: Text('User Directory', style: TextStyle(color: appColors.txt, fontSize: 13)),
+                      subtitle: Text('View all registered users', style: TextStyle(color: appColors.txt3, fontSize: 10)),
+                      trailing: Icon(Icons.chevron_right, color: appColors.txt3),
+                      onTap: () => Get.toNamed('/users_list'),
+                    ),
+                    Divider(color: appColors.bdr, height: 1),
+                  ],
                   ListTile(
                     leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: appColors.card2, borderRadius: BorderRadius.circular(10)), child: const Text('📤')),
                     title: Text('export'.tr, style: TextStyle(color: appColors.txt, fontSize: 13)),
                     subtitle: Text('exportSub'.tr, style: TextStyle(color: appColors.txt3, fontSize: 10)),
                     trailing: Icon(Icons.chevron_right, color: appColors.txt3),
                     onTap: controller.exportData,
+                  ),
+                  Divider(color: appColors.bdr, height: 1),
+                  ListTile(
+                    leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: appColors.card2, borderRadius: BorderRadius.circular(10)), child: const Text('📥')),
+                    title: Text('Import Data', style: TextStyle(color: appColors.txt, fontSize: 13)),
+                    subtitle: Text('Restore from backup', style: TextStyle(color: appColors.txt3, fontSize: 10)),
+                    trailing: Icon(Icons.chevron_right, color: appColors.txt3),
+                    onTap: controller.importData,
                   ),
                   Divider(color: appColors.bdr, height: 1),
                   ListTile(

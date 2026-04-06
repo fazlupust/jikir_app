@@ -22,4 +22,6 @@ abstract class HomeRepository {
   Future<void> clearLocalData();
   String getCurrentUserId();
   Future<void> syncHistoryFromFirebase();
+  Future<String> exportDataToJson();
+  Future<void> importDataFromJson(String jsonString);
 }

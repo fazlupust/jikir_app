@@ -207,11 +207,11 @@ class AuthScreen extends GetView<AuthController> {
         contentPadding: EdgeInsets.symmetric(vertical: 18.h),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r), 
-          borderSide: const BorderSide(color: Colors.white24, width: 1.5)
+          borderSide: BorderSide(color: AppColors.textSecondary.withOpacity(0.5), width: 1.5)
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r), 
-          borderSide: const BorderSide(color: Colors.white24, width: 1.5)
+          borderSide: BorderSide(color: AppColors.textSecondary.withOpacity(0.5), width: 1.5)
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r), 
