@@ -144,7 +144,7 @@ class _Badge extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.card,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.txt2),
+        border: Border.all(color: colors.txt2)
       ),
       child: Column(
         children: [
