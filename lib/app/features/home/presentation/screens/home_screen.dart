@@ -8,6 +8,7 @@ import 'counter_screen.dart';
 import 'history_screen.dart';
 import 'stats_screen.dart';
 import 'profile_screen.dart';
+import 'namaz_screen.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends GetView<HomeController> {
@@ -60,7 +61,7 @@ class HomeScreen extends GetView<HomeController> {
             const CounterScreen(),
             const HistoryScreen(),
             const StatsScreen(),
-            const ProfileScreen(),
+            const NamazScreen(),
             const SettingsScreen(),
           ],
         ),
@@ -94,9 +95,9 @@ class HomeScreen extends GetView<HomeController> {
                 label: 'Stats'.tr,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline),
-                activeIcon: _activeIcon(Icons.person_outline, appColors.gold),
-                label: 'Profile'.tr,
+                icon: Icon(Icons.access_time_outlined),
+                activeIcon: _activeIcon(Icons.access_time_outlined, appColors.gold),
+                label: 'Namaz'.tr,
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings_outlined),

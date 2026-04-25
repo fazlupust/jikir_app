@@ -226,7 +226,7 @@ class CounterScreen extends GetView<HomeController> {
                                 curItem.ar,
                                 textAlign: TextAlign.center,
                                 style: context.arabicText.copyWith(
-                                  fontSize: 40,
+                                  fontSize: 35,
                                   color: curItem.color,
                                 ),
                               ),
@@ -235,7 +235,7 @@ class CounterScreen extends GetView<HomeController> {
                                 curItem.meaning,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 17,
                                   color: appColors.txt,
                                   fontWeight: FontWeight.bold,
                                 ),

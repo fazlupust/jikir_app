@@ -96,10 +96,11 @@ class DhikrConstants {
     ),
     DhikrItem(
       id: 'laHawla',
-      ar: 'لَا حَوْلَ وَلَا قُوَّةَ',
-      bn: 'লা হাওলা ওয়ালা কুওয়াতা',
-      en: 'La Hawla',
-      meaning: 'আল্লাহ ছাড়া কোনো শক্তি ও ক্ষমতা নেই',
+      ar: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
+      bn: 'লা হাওলা ওয়ালা কুউওয়াতা ইল্লা বিল্লাহ',
+      en: 'La Hawla Wala Quwwata Illa Billah',
+      meaning:
+          'আল্লাহ ছাড়া কোনো শক্তি নেই এবং আল্লাহ ছাড়া কোনো আশ্রয় বা ক্ষমতা নেই',
       color: Color(0xFFfbbf24),
       target: 33,
     ),

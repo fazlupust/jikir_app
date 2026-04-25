@@ -16,9 +16,15 @@ class ProfileScreen extends GetView<HomeController> {
       
       final totalRecords = controller.allTimeStats.values.fold(0, (sum, val) => sum + val);
 
-      return Container(
-        color: appColors.bg,
-        child: ListView(
+      return Scaffold(
+        backgroundColor: appColors.bg,
+        appBar: AppBar(
+          backgroundColor: appColors.surf,
+          elevation: 0,
+          title: Text('Profile'.tr, style: TextStyle(color: appColors.txt)),
+          iconTheme: IconThemeData(color: appColors.txt),
+        ),
+        body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           children: [
             // AVATAR

@@ -5,6 +5,7 @@ class AppSettingsEntity {
   final bool milestoneAlerts;
   final String theme;
   final String language;
+  final bool namazNotifications;
 
   AppSettingsEntity({
     required this.vibration,
@@ -13,6 +14,7 @@ class AppSettingsEntity {
     required this.milestoneAlerts,
     required this.theme,
     required this.language,
+    required this.namazNotifications,
   });
 
   factory AppSettingsEntity.defaultSettings() {
@@ -23,6 +25,7 @@ class AppSettingsEntity {
       milestoneAlerts: true,
       theme: 'dark',
       language: 'en',
+      namazNotifications: false,
     );
   }
 
@@ -33,6 +36,7 @@ class AppSettingsEntity {
     bool? milestoneAlerts,
     String? theme,
     String? language,
+    bool? namazNotifications,
   }) {
     return AppSettingsEntity(
       vibration: vibration ?? this.vibration,
@@ -41,6 +45,7 @@ class AppSettingsEntity {
       milestoneAlerts: milestoneAlerts ?? this.milestoneAlerts,
       theme: theme ?? this.theme,
       language: language ?? this.language,
+      namazNotifications: namazNotifications ?? this.namazNotifications,
     );
   }
 
@@ -52,6 +57,7 @@ class AppSettingsEntity {
       'milestoneAlerts': milestoneAlerts,
       'theme': theme,
       'language': language,
+      'namazNotifications': namazNotifications,
     };
   }
 
@@ -63,6 +69,7 @@ class AppSettingsEntity {
       milestoneAlerts: map['milestoneAlerts'] ?? true,
       theme: map['theme'] ?? 'dark',
       language: map['language'] ?? 'en',
+      namazNotifications: map['namazNotifications'] ?? false,
     );
   }
 }

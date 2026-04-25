@@ -7,6 +7,8 @@ import '../features/splash/presentation/screens/splash_screen.dart';
 import '../features/home/home_binding.dart';
 
 import '../features/home/presentation/screens/users_list_screen.dart';
+import '../features/home/presentation/screens/settings_screen.dart';
+import '../features/home/presentation/screens/profile_screen.dart';
 
 class AppPages {
   static final routes = [
@@ -28,6 +30,14 @@ class AppPages {
     GetPage(
       name: '/users_list',
       page: () => const UsersListScreen(),
+    ),
+    GetPage(
+      name: '/settings',
+      page: () => const SettingsScreen(),
+    ),
+    GetPage(
+      name: '/profile',
+      page: () => const ProfileScreen(),
     ),
   ];
 }

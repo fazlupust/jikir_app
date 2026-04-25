@@ -11,7 +11,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:adhan/adhan.dart';
 import '../../../../core/constants/dhikr_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/app_settings_entity.dart';
@@ -42,6 +45,10 @@ class HomeController extends GetxController {
   // Profile & Settings State
   var profile = UserProfileEntity.empty().obs;
   var settings = AppSettingsEntity.defaultSettings().obs;
+
+  // Notifications & Namaz
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  var prayerTimes = <Map<String, String>>[].obs;
 
   // History & Stats State
   var activeDates = <String>[].obs;
@@ -99,7 +106,22 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _initNotifications();
     _loadInitialData();
+  }
+
+  Future<void> _initNotifications() async {
+    tz.initializeTimeZones();
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    final DarwinInitializationSettings initializationSettingsDarwin = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    final InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid,
+        iOS: initializationSettingsDarwin);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   Future<void> _loadInitialData() async {
@@ -107,6 +129,7 @@ class HomeController extends GetxController {
     final st = await repository.getSettings();
     settings.value = st;
     _applySettings();
+    _calculatePrayerTimes();
 
     // 2. Load Profile
     final pr = await repository.getProfile();
@@ -293,6 +316,95 @@ class HomeController extends GetxController {
   void setKeepScreenOn(bool val) {
     _updateSettings(settings.value.copyWith(keepScreenOn: val));
     _applySettings();
+  }
+
+  void setNamazNotifications(bool val) {
+    _updateSettings(settings.value.copyWith(namazNotifications: val));
+    if (!val) {
+      flutterLocalNotificationsPlugin.cancelAll();
+    } else {
+      _calculatePrayerTimes();
+    }
+  }
+
+  void _calculatePrayerTimes() {
+    // Default config to Dhaka for demonstration
+    final coordinates = Coordinates(23.8103, 90.4125);
+    final params = CalculationMethod.karachi.getParameters();
+    params.madhab = Madhab.hanafi;
+    final date = DateComponents.from(DateTime.now());
+    final ptObj = PrayerTimes(coordinates, date, params);
+
+    final format = DateFormat.jm();
+    
+    // Check if current time is within range
+    String checkNow(DateTime time1, DateTime time2) {
+      final now = DateTime.now();
+      if (now.isAfter(time1) && now.isBefore(time2)) return 'true';
+      return 'false';
+    }
+
+    prayerTimes.assignAll([
+      {
+        'name': 'ফজর',
+        'start': format.format(ptObj.fajr),
+        'end': format.format(ptObj.sunrise),
+        'isCurrent': checkNow(ptObj.fajr, ptObj.sunrise)
+      },
+      {
+        'name': 'যোহর',
+        'start': format.format(ptObj.dhuhr),
+        'end': format.format(ptObj.asr),
+        'isCurrent': checkNow(ptObj.dhuhr, ptObj.asr)
+      },
+      {
+        'name': 'আসর',
+        'start': format.format(ptObj.asr),
+        'end': format.format(ptObj.maghrib),
+        'isCurrent': checkNow(ptObj.asr, ptObj.maghrib)
+      },
+      {
+        'name': 'মাগরিব',
+        'start': format.format(ptObj.maghrib),
+        'end': format.format(ptObj.isha),
+        'isCurrent': checkNow(ptObj.maghrib, ptObj.isha)
+      },
+      {
+        'name': 'এশা',
+        'start': format.format(ptObj.isha),
+        'end': format.format(ptObj.fajr.add(const Duration(days: 1))),
+        'isCurrent': checkNow(ptObj.isha, DateTime.now().add(const Duration(hours: 1))) 
+      },
+    ]);
+
+    if (settings.value.namazNotifications) {
+      _scheduleNotifications(ptObj);
+    }
+  }
+
+  Future<void> _scheduleNotifications(PrayerTimes pt) async {
+    await flutterLocalNotificationsPlugin.cancelAll(); // Clear old
+
+    void schedule(int id, String name, DateTime time) async {
+      if (time.isBefore(DateTime.now())) return; 
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        'নামাজের সময়',
+        'এখন $name নামাজের সময় হয়েছে',
+        tz.TZDateTime.from(time, tz.local),
+        const NotificationDetails(
+          android: AndroidNotificationDetails('namaz_channel', 'Namaz Notifications', channelDescription: 'Reminders for daily Namaz', importance: Importance.max, priority: Priority.high),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    }
+
+    schedule(1, 'ফজর', pt.fajr);
+    schedule(2, 'যোহর', pt.dhuhr);
+    schedule(3, 'আসর', pt.asr);
+    schedule(4, 'মাগরিব', pt.maghrib);
+    schedule(5, 'এশা', pt.isha);
   }
 
   void setTheme(String themeId) {

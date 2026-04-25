@@ -18,6 +18,42 @@ class SettingsScreen extends GetView<HomeController> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           children: [
+            // PROFILE NAVIGATION
+            GestureDetector(
+              onTap: () => Get.toNamed('/profile'),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: appColors.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: appColors.bdr)),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 48, height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [appColors.card2, appColors.card]),
+                        border: Border.all(color: appColors.goldD, width: 1),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(profile.avatar, style: const TextStyle(fontSize: 22)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(profile.name, style: TextStyle(color: appColors.txt, fontSize: 15, fontWeight: FontWeight.bold)),
+                          Text("View Profile & Stats", style: TextStyle(color: appColors.txt3, fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, color: appColors.gold),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+
             // THEME
             Text("theme".tr.toUpperCase(),
                 style: TextStyle(fontSize: 10, letterSpacing: 3, color: appColors.txt3)),
