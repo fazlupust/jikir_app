@@ -80,7 +80,33 @@ class NamazScreen extends GetView<HomeController> {
                 ],
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
+
+            // NEXT PRAYER COUNTDOWN
+            if (controller.nextPrayerCountdown.value.isNotEmpty) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: appColors.gold.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: appColors.gold.withOpacity(0.4)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.hourglass_bottom_rounded, color: appColors.gold, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        controller.nextPrayerCountdown.value,
+                        style: TextStyle(color: appColors.txt, fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
             // PRAYER TIMES LIST
             if (controller.prayerTimes.isNotEmpty) ...[

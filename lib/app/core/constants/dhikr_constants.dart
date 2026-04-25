@@ -29,7 +29,7 @@ class DhikrConstants {
       en: 'Subhanallah',
       meaning: 'আল্লাহ অতি পবিত্র',
       color: Color(0xFF4ade80),
-      target: 33,
+      target: 100,
     ),
     DhikrItem(
       id: 'subhanallah_wa_bihamdihi',
@@ -47,7 +47,7 @@ class DhikrConstants {
       en: 'La Elaha Illela',
       meaning: 'আল্লাহ ছাড়া কোনো উপাস্য নেই',
       color: Color(0xFF60a5fa),
-      target: 33,
+      target: 100,
     ),
     DhikrItem(
       id: 'allahuakbar',
@@ -131,6 +131,15 @@ class DhikrConstants {
           'আল্লাহ অতি পবিত্র, সমস্ত প্রশংসা আল্লাহর, আল্লাহ ছাড়া কোনো উপাস্য নেই এবং আল্লাহ সর্বশ্রেষ্ঠ',
       color: Color(0xFF14b8a6),
       target: 33,
+    ),
+    DhikrItem(
+      id: 'subhanallahi_wa_bihamdihi_subhanallahil_azeem',
+      ar: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ العَظِيمِ',
+      bn: 'সুবহানাল্লাহি ওয়া বিহামদিহি, সুবহানাল্লাহিল আজীম',
+      en: 'Subhanallahi Wa Bihamdihi, Subhanallahil Azeem',
+      meaning: 'আল্লাহর পবিত্রতা ঘোষণা করছি এবং তাঁরই প্রশংসা করছি; মহান আল্লাহ অতি পবিত্র',
+      color: Color(0xFFec4899),
+      target: 100,
     ),
   ];
 

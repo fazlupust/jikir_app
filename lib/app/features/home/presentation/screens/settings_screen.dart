@@ -166,10 +166,10 @@ class SettingsScreen extends GetView<HomeController> {
                   ),
                   Divider(color: appColors.bdr, height: 1),
                   ListTile(
-                    leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: appColors.card2, borderRadius: BorderRadius.circular(10)), child: const Text('🚪')),
-                    title: Text('logout'.tr, style: TextStyle(color: appColors.txt, fontSize: 13)),
+                    leading: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: appColors.card2, borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20)),
+                    title: Text('logout'.tr, style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.w600)),
                     subtitle: Text('logoutSub'.tr, style: TextStyle(color: appColors.txt3, fontSize: 10)),
-                    trailing: Icon(Icons.logout, color: appColors.txt3),
+                    trailing: Icon(Icons.chevron_right, color: appColors.txt3),
                     onTap: controller.logout,
                   ),
                 ],

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -49,6 +50,8 @@ class HomeController extends GetxController {
   // Notifications & Namaz
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   var prayerTimes = <Map<String, String>>[].obs;
+  var nextPrayerCountdown = ''.obs;
+  Timer? _namazTimer;
 
   // History & Stats State
   var activeDates = <String>[].obs;
@@ -377,10 +380,98 @@ class HomeController extends GetxController {
       },
     ]);
 
+    _startNamazTimer(ptObj);
+
     if (settings.value.namazNotifications) {
       _scheduleNotifications(ptObj);
     }
   }
+
+  void _startNamazTimer(PrayerTimes ptObj) {
+    _namazTimer?.cancel();
+    _updateCountdown(ptObj);
+    _namazTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      _updateCountdown(ptObj);
+    });
+  }
+
+  void _updateCountdown(PrayerTimes ptObj) {
+    final now = DateTime.now();
+
+    // 1. UPDATE ACTIVE PRAYER (NOW) DYNAMICALLY
+    String checkNow(DateTime time1, DateTime time2) {
+      if (now.isAfter(time1) && now.isBefore(time2)) return 'true';
+      return 'false';
+    }
+
+    if (prayerTimes.isNotEmpty) {
+      final updatedList = List<Map<String, String>>.from(prayerTimes.map((e) => Map<String, String>.from(e)));
+      updatedList[0]['isCurrent'] = checkNow(ptObj.fajr, ptObj.sunrise);
+      updatedList[1]['isCurrent'] = checkNow(ptObj.dhuhr, ptObj.asr);
+      updatedList[2]['isCurrent'] = checkNow(ptObj.asr, ptObj.maghrib);
+      updatedList[3]['isCurrent'] = checkNow(ptObj.maghrib, ptObj.isha);
+      
+      // For Isha, it spans through midnight till next day Fajr
+      bool isIsha = now.isAfter(ptObj.isha) || now.isBefore(ptObj.fajr);
+      updatedList[4]['isCurrent'] = isIsha ? 'true' : 'false';
+
+      prayerTimes.assignAll(updatedList);
+    }
+
+    // 2. CALCULATE NEXT PRAYER & COUNTDOWN
+    var next = ptObj.nextPrayer();
+    
+    DateTime? nextTime;
+    String name = '';
+    
+    if (next == Prayer.none) {
+      // Very simple fallback: just use tomorrow's Fajr
+      final tomorrowParams = CalculationMethod.karachi.getParameters();
+      tomorrowParams.madhab = Madhab.hanafi;
+      final tomorrowDate = DateComponents.from(now.add(const Duration(days: 1)));
+      final tomorrowPt = PrayerTimes(ptObj.coordinates, tomorrowDate, tomorrowParams);
+      nextTime = tomorrowPt.fajr;
+      name = 'ফজর';
+    } else {
+      nextTime = ptObj.timeForPrayer(next)!;
+      switch(next) {
+        case Prayer.fajr: name = 'ফজর'; break;
+        case Prayer.sunrise: name = 'সূর্যোদয়'; break;
+        case Prayer.dhuhr: name = 'যোহর'; break;
+        case Prayer.asr: name = 'আসর'; break;
+        case Prayer.maghrib: name = 'মাগরিব'; break;
+        case Prayer.isha: name = 'এশা'; break;
+        default: break;
+      }
+    }
+
+    final diff = nextTime.difference(now);
+    
+    // Only show if it's within 45 minutes
+    if (diff.isNegative || diff.inMinutes > 45) {
+      nextPrayerCountdown.value = '';
+      return;
+    }
+    
+    final hours = diff.inHours;
+    final minutes = diff.inMinutes % 60;
+    
+    String timeStr = '';
+    if (hours > 0) {
+      timeStr = '$hours ঘণ্টা ';
+    }
+    if (minutes >= 0 || hours > 0) {
+      timeStr += '$minutes মিনিট';
+    }
+    
+    // Ignore Sunrise warning technically, but show if it's there
+    if (name == 'সূর্যোদয়') {
+      nextPrayerCountdown.value = 'সূর্যোদয় হতে বাকি: $timeStr';
+    } else {
+      nextPrayerCountdown.value = 'পরবর্তী $name শুরু হতে বাকি: $timeStr';
+    }
+  }
+
 
   Future<void> _scheduleNotifications(PrayerTimes pt) async {
     await flutterLocalNotificationsPlugin.cancelAll(); // Clear old
@@ -639,6 +730,7 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     WakelockPlus.disable();
+    _namazTimer?.cancel();
     super.onClose();
   }
 }
